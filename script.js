@@ -1727,7 +1727,11 @@ const app = {
         program.days.forEach(day => {
             html += `
                 <div class="glass-card mb-4 program-day-card">
-                    <h4 class="program-day-title"><i class="fa-solid fa-calendar-day text-primary"></i> ${day.name}</h4>
+                    <div class="program-day-header">
+                        <span class="day-badge">${day.day || ''}</span>
+                        <h4 class="program-day-title"><i class="fa-solid fa-calendar-day text-primary"></i> ${day.name}</h4>
+                    </div>
+                    
                     <div class="program-exercise-list mt-3">`;
             day.exercises.forEach(ex => {
                 html += `
@@ -1738,7 +1742,19 @@ const app = {
                         </div>`;
             });
             html += `
-                    </div>
+                    </div>`;
+            
+            if (day.foods && day.foods.length > 0) {
+                html += `
+                    <div class="program-food-section mt-4 pt-3" style="border-top: 1px solid var(--border)">
+                        <h5 class="mb-2"><i class="fa-solid fa-utensils text-primary"></i> Daily Nutrition Focus</h5>
+                        <ul class="program-food-list">
+                            ${day.foods.map(food => `<li>${food}</li>`).join('')}
+                        </ul>
+                    </div>`;
+            }
+            
+            html += `
                 </div>`;
         });
 
