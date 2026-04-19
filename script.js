@@ -12,43 +12,95 @@ const PROGRAMS = {
         subtitle: 'A balanced full-body approach for health and strength.',
         days: [
             {
-                name: 'Day 1 — Upper Body',
+                day: 'Monday',
+                name: 'Upper Body Strength',
                 exercises: [
                     { name: 'Bench Press', sets: 3, reps: '8-10', rest: '90s' },
                     { name: 'Barbell Row', sets: 3, reps: '8-10', rest: '90s' },
                     { name: 'Overhead Press', sets: 3, reps: '10-12', rest: '60s' },
                     { name: 'Dumbbell Curl', sets: 3, reps: '12-15', rest: '60s' },
                     { name: 'Tricep Pushdown', sets: 3, reps: '12-15', rest: '60s' },
-                ]
+                ],
+                foods: ['Oats with banana & honey (pre-workout)', 'Grilled chicken breast with brown rice', 'Whole eggs & avocado toast', 'Greek yoghurt with berries', 'Lean beef stir-fry with vegetables']
             },
             {
-                name: 'Day 2 — Lower Body',
+                day: 'Tuesday',
+                name: 'Lower Body Strength',
                 exercises: [
                     { name: 'Squat', sets: 4, reps: '6-8', rest: '2min' },
                     { name: 'Romanian Deadlift', sets: 3, reps: '8-10', rest: '90s' },
                     { name: 'Leg Press', sets: 3, reps: '10-12', rest: '90s' },
                     { name: 'Leg Curl', sets: 3, reps: '12-15', rest: '60s' },
                     { name: 'Calf Raises', sets: 4, reps: '15-20', rest: '45s' },
-                ]
+                ],
+                foods: ['Sweet potato with eggs (pre-workout)', 'Salmon with quinoa & steamed broccoli', 'Cottage cheese with almonds', 'Protein shake post-workout', 'Lentil soup with whole-grain bread']
             },
             {
-                name: 'Day 3 — Full Body / Active Recovery',
+                day: 'Wednesday',
+                name: 'Active Recovery & Core',
+                exercises: [
+                    { name: 'Plank', sets: 4, reps: '45-60s', rest: '45s' },
+                    { name: 'Dead Bug', sets: 3, reps: '10/side', rest: '45s' },
+                    { name: 'Bird Dog', sets: 3, reps: '10/side', rest: '45s' },
+                    { name: '20-min Light Cardio (bike/walk)', sets: 1, reps: '20min', rest: '-' },
+                ],
+                foods: ['Smoothie: spinach, banana, protein powder, almond milk', 'Tuna salad wrap with mixed greens', 'Apple with peanut butter', 'Grilled salmon with asparagus', 'Almonds & dark chocolate (evening snack)']
+            },
+            {
+                day: 'Thursday',
+                name: 'Full Body Power',
                 exercises: [
                     { name: 'Deadlift', sets: 3, reps: '5', rest: '3min' },
                     { name: 'Incline Dumbbell Press', sets: 3, reps: '10-12', rest: '60s' },
                     { name: 'Pull-ups', sets: 3, reps: 'AMRAP', rest: '90s' },
-                    { name: 'Plank', sets: 3, reps: '45-60s', rest: '45s' },
+                    { name: 'Dumbbell Lunges', sets: 3, reps: '12/leg', rest: '60s' },
                     { name: 'Face Pulls', sets: 3, reps: '15-20', rest: '45s' },
-                ]
+                ],
+                foods: ['Rice cakes with almond butter (pre-workout)', 'Chicken & sweet potato bowl', 'Hard-boiled eggs with celery sticks', 'Protein shake with oats', 'Turkey mince with pasta & tomato sauce']
+            },
+            {
+                day: 'Friday',
+                name: 'Upper Body Hypertrophy',
+                exercises: [
+                    { name: 'Cable Flyes', sets: 4, reps: '12-15', rest: '45s' },
+                    { name: 'Lat Pulldown', sets: 4, reps: '10-12', rest: '60s' },
+                    { name: 'Lateral Raises', sets: 4, reps: '15-20', rest: '45s' },
+                    { name: 'Hammer Curl', sets: 3, reps: '12-15', rest: '60s' },
+                    { name: 'Tricep Dips', sets: 3, reps: '10-12', rest: '60s' },
+                ],
+                foods: ['Banana & protein shake (pre-workout)', 'Grilled tilapia with roasted vegetables', 'Hummus with cucumber & peppers', 'Brown rice with black beans', 'Cottage cheese with berries (before bed)']
+            },
+            {
+                day: 'Saturday',
+                name: 'Lower Body Volume + Cardio',
+                exercises: [
+                    { name: 'Hack Squat', sets: 4, reps: '10-12', rest: '90s' },
+                    { name: 'Hip Thrust', sets: 4, reps: '12-15', rest: '60s' },
+                    { name: 'Leg Extension', sets: 3, reps: '15-20', rest: '45s' },
+                    { name: 'Calf Raises', sets: 4, reps: '20', rest: '45s' },
+                    { name: '20-min HIIT Cardio', sets: 1, reps: '20min', rest: '-' },
+                ],
+                foods: ['Omelette with vegetables & cheese (pre-workout)', 'Beef & sweet potato bowl', 'Protein bar + fruit', 'Whole-grain pasta with chicken & pesto', 'Casein protein shake (before bed)']
+            },
+            {
+                day: 'Sunday',
+                name: 'Rest & Recovery',
+                exercises: [
+                    { name: 'Gentle Yoga / Stretching', sets: 1, reps: '20-30min', rest: '-' },
+                    { name: 'Foam Rolling (full body)', sets: 1, reps: '10-15min', rest: '-' },
+                ],
+                foods: ['Overnight oats with berries', 'Grilled chicken salad with olive oil dressing', 'Mixed nuts & fruit', 'Vegetable soup with whole-grain bread', 'Greek yoghurt with honey']
             },
         ]
     },
+
     bodybuilding: {
         title: 'Bodybuilding Split (PPL)',
         subtitle: 'Push/Pull/Legs hypertrophy focus for stage-ready physique.',
         days: [
             {
-                name: 'Push Day',
+                day: 'Monday',
+                name: 'Push — Chest, Shoulders & Triceps',
                 exercises: [
                     { name: 'Bench Press', sets: 4, reps: '8-10', rest: '90s' },
                     { name: 'Incline Dumbbell Press', sets: 4, reps: '10-12', rest: '60s' },
@@ -56,10 +108,12 @@ const PROGRAMS = {
                     { name: 'Cable Flyes', sets: 3, reps: '12-15', rest: '45s' },
                     { name: 'Lateral Raises', sets: 4, reps: '15-20', rest: '45s' },
                     { name: 'Tricep Overhead Extension', sets: 3, reps: '12-15', rest: '45s' },
-                ]
+                ],
+                foods: ['Egg white omelette with oats (pre-workout)', 'Chicken breast with white rice & broccoli', 'Casein protein pudding', 'Brown rice with tuna & avocado', 'Whole eggs with spinach stir-fry']
             },
             {
-                name: 'Pull Day',
+                day: 'Tuesday',
+                name: 'Pull — Back & Biceps',
                 exercises: [
                     { name: 'Barbell Row', sets: 4, reps: '8-10', rest: '90s' },
                     { name: 'Lat Pulldown', sets: 4, reps: '10-12', rest: '60s' },
@@ -67,10 +121,12 @@ const PROGRAMS = {
                     { name: 'Face Pulls', sets: 3, reps: '15-20', rest: '45s' },
                     { name: 'Barbell Curl', sets: 3, reps: '10-12', rest: '60s' },
                     { name: 'Hammer Curl', sets: 3, reps: '12-15', rest: '45s' },
-                ]
+                ],
+                foods: ['Protein shake + banana (pre-workout)', 'Salmon fillet with sweet potato & green beans', 'Greek yoghurt with almonds', 'Chicken & quinoa salad', 'Cottage cheese with peanut butter (night)']
             },
             {
-                name: 'Legs Day',
+                day: 'Wednesday',
+                name: 'Legs — Quads, Hamstrings & Calves',
                 exercises: [
                     { name: 'Squat', sets: 4, reps: '6-8', rest: '2min' },
                     { name: 'Leg Press', sets: 4, reps: '10-12', rest: '90s' },
@@ -78,307 +134,830 @@ const PROGRAMS = {
                     { name: 'Leg Extension', sets: 3, reps: '12-15', rest: '60s' },
                     { name: 'Leg Curl', sets: 3, reps: '12-15', rest: '60s' },
                     { name: 'Calf Raises', sets: 4, reps: '15-20', rest: '45s' },
-                ]
+                ],
+                foods: ['Oatmeal with whey protein (pre-workout)', 'Ground turkey with brown rice & asparagus', 'Rice cakes with almond butter', 'Beef with roasted vegetables', 'Casein shake before bed']
+            },
+            {
+                day: 'Thursday',
+                name: 'Push — Volume Day',
+                exercises: [
+                    { name: 'Incline Barbell Press', sets: 4, reps: '10-12', rest: '90s' },
+                    { name: 'Dumbbell Shoulder Press', sets: 4, reps: '12-15', rest: '60s' },
+                    { name: 'Pec Deck Flyes', sets: 4, reps: '12-15', rest: '45s' },
+                    { name: 'Lateral Raises', sets: 5, reps: '15-20', rest: '45s' },
+                    { name: 'Tricep Pushdown (rope)', sets: 4, reps: '12-15', rest: '45s' },
+                ],
+                foods: ['Egg whites + oats (pre-workout)', 'Grilled tilapia with jasmine rice & broccoli', 'Protein bar', 'Chicken caesar salad (no croutons)', 'Mixed nuts & low-fat dairy']
+            },
+            {
+                day: 'Friday',
+                name: 'Pull — Volume Day',
+                exercises: [
+                    { name: 'Pull-ups (Weighted)', sets: 4, reps: '8-10', rest: '90s' },
+                    { name: 'Single-Arm Dumbbell Row', sets: 4, reps: '10-12', rest: '60s' },
+                    { name: 'Chest-Supported Row', sets: 3, reps: '12-15', rest: '60s' },
+                    { name: 'Rear Delt Flyes', sets: 4, reps: '15-20', rest: '45s' },
+                    { name: 'Preacher Curl', sets: 4, reps: '10-12', rest: '60s' },
+                    { name: 'Cable Curl', sets: 3, reps: '12-15', rest: '45s' },
+                ],
+                foods: ['Smoothie with oats, protein, banana (pre-workout)', 'Shrimp & brown rice with stir-fry veggies', 'Hard-boiled eggs with celery', 'Lean steak with sweet potato & spinach', 'Casein protein shake (night)']
+            },
+            {
+                day: 'Saturday',
+                name: 'Legs — Volume + Posing Practice',
+                exercises: [
+                    { name: 'Hack Squat', sets: 4, reps: '10-12', rest: '90s' },
+                    { name: 'Hip Thrust', sets: 4, reps: '12-15', rest: '60s' },
+                    { name: 'Leg Extension (single leg)', sets: 3, reps: '15', rest: '45s' },
+                    { name: 'Seated Leg Curl', sets: 3, reps: '15', rest: '45s' },
+                    { name: 'Standing Calf Raises', sets: 5, reps: '20', rest: '45s' },
+                    { name: 'Posing Practice', sets: 1, reps: '15min', rest: '-' },
+                ],
+                foods: ['Rice & egg whites (pre-workout)', 'Chicken breast with sweet potato & veggies', 'Low-fat Greek yoghurt with berries', 'Tuna with brown rice', 'Cottage cheese + casein before bed']
+            },
+            {
+                day: 'Sunday',
+                name: 'Rest & Recovery',
+                exercises: [
+                    { name: 'Posing Practice', sets: 1, reps: '20min', rest: '-' },
+                    { name: 'Full-Body Stretching / Yoga', sets: 1, reps: '20min', rest: '-' },
+                    { name: 'Foam Rolling', sets: 1, reps: '10min', rest: '-' },
+                ],
+                foods: ['Overnight oats with protein powder', 'Lean chicken salad with olive oil', 'Mixed nuts & an apple', 'Grilled fish with steamed rice & greens', 'Greek yoghurt with almonds (night)']
             },
         ]
     },
+
     classic_physique: {
         title: 'Classic Physique Program',
         subtitle: 'Balanced aesthetics with emphasis on V-taper, arms, and posing.',
         days: [
             {
-                name: 'Day 1 — Chest & Back',
+                day: 'Monday',
+                name: 'Chest & Back — Width & Thickness',
                 exercises: [
                     { name: 'Bench Press', sets: 4, reps: '8-10', rest: '90s' },
-                    { name: 'Barbell Row', sets: 4, reps: '8-10', rest: '90s' },
+                    { name: 'Pull-ups (Wide Grip)', sets: 4, reps: '8-10', rest: '90s' },
                     { name: 'Incline Dumbbell Press', sets: 3, reps: '10-12', rest: '60s' },
-                    { name: 'Lat Pulldown', sets: 3, reps: '10-12', rest: '60s' },
+                    { name: 'Lat Pulldown', sets: 4, reps: '10-12', rest: '60s' },
                     { name: 'Dumbbell Pullover', sets: 3, reps: '12-15', rest: '60s' },
-                ]
+                    { name: 'Cable Crossover', sets: 3, reps: '15', rest: '45s' },
+                ],
+                foods: ['Egg white omelette with toast (pre-workout)', 'Chicken breast with pasta & marinara', 'Cottage cheese with walnuts', 'Tuna wrap with avocado & greens', 'Casein protein shake (night)']
             },
             {
-                name: 'Day 2 — Shoulders & Arms',
+                day: 'Tuesday',
+                name: 'Shoulders & Arms — V-Taper Focus',
                 exercises: [
                     { name: 'Overhead Press', sets: 4, reps: '8-10', rest: '90s' },
-                    { name: 'Lateral Raises', sets: 4, reps: '15-20', rest: '45s' },
+                    { name: 'Lateral Raises', sets: 5, reps: '15-20', rest: '45s' },
+                    { name: 'Rear Delt Flyes', sets: 4, reps: '15', rest: '45s' },
                     { name: 'Barbell Curl', sets: 4, reps: '10-12', rest: '60s' },
-                    { name: 'Tricep Dips', sets: 3, reps: '10-12', rest: '60s' },
+                    { name: 'Tricep Dips', sets: 4, reps: '10-12', rest: '60s' },
                     { name: 'Concentration Curl', sets: 3, reps: '12-15', rest: '45s' },
-                ]
+                ],
+                foods: ['Protein shake + banana (pre-workout)', 'Salmon with quinoa & asparagus', 'Almonds & an orange', 'Lean beef stir-fry with brown rice', 'Greek yoghurt before bed']
             },
             {
-                name: 'Day 3 — Legs & Abs',
+                day: 'Wednesday',
+                name: 'Legs & Glutes — Symmetry',
                 exercises: [
-                    { name: 'Squat', sets: 4, reps: '6-8', rest: '2min' },
-                    { name: 'Leg Press', sets: 3, reps: '10-12', rest: '90s' },
-                    { name: 'Romanian Deadlift', sets: 3, reps: '8-10', rest: '90s' },
+                    { name: 'Squat', sets: 4, reps: '8-10', rest: '2min' },
+                    { name: 'Hip Thrust', sets: 4, reps: '12', rest: '90s' },
+                    { name: 'Romanian Deadlift', sets: 3, reps: '10-12', rest: '90s' },
                     { name: 'Leg Curl', sets: 3, reps: '12-15', rest: '60s' },
-                    { name: 'Calf Raises', sets: 4, reps: '15-20', rest: '45s' },
-                    { name: 'Hanging Leg Raise', sets: 3, reps: '15-20', rest: '45s' },
-                ]
+                    { name: 'Calf Raises', sets: 5, reps: '20', rest: '45s' },
+                    { name: 'Hanging Leg Raise', sets: 3, reps: '15', rest: '45s' },
+                ],
+                foods: ['Oatmeal with protein powder (pre-workout)', 'Ground turkey with sweet potato & broccoli', 'Rice cakes with peanut butter', 'Grilled chicken salad', 'Cottage cheese + almonds (night)']
+            },
+            {
+                day: 'Thursday',
+                name: 'Back Detail & Biceps Peak',
+                exercises: [
+                    { name: 'Barbell Row', sets: 4, reps: '8-10', rest: '90s' },
+                    { name: 'Seated Cable Row (narrow grip)', sets: 4, reps: '10-12', rest: '60s' },
+                    { name: 'Lat Pulldown (underhand)', sets: 3, reps: '10-12', rest: '60s' },
+                    { name: 'Single-Arm Dumbbell Row', sets: 3, reps: '12', rest: '60s' },
+                    { name: 'Spider Curl', sets: 4, reps: '10-12', rest: '60s' },
+                    { name: 'Cable Curl', sets: 3, reps: '12-15', rest: '45s' },
+                ],
+                foods: ['Egg whites + oats (pre-workout)', 'Shrimp with jasmine rice & zucchini', 'Protein bar + apple', 'Lean steak with roasted sweet potato', 'Casein shake (night)']
+            },
+            {
+                day: 'Friday',
+                name: 'Chest & Triceps — Fullness',
+                exercises: [
+                    { name: 'Incline Barbell Press', sets: 4, reps: '8-10', rest: '90s' },
+                    { name: 'Flat Dumbbell Press', sets: 4, reps: '10-12', rest: '60s' },
+                    { name: 'Decline Cable Flyes', sets: 3, reps: '12-15', rest: '45s' },
+                    { name: 'Overhead Tricep Extension', sets: 4, reps: '12-15', rest: '45s' },
+                    { name: 'Skull Crushers', sets: 3, reps: '10-12', rest: '60s' },
+                    { name: 'Tricep Kickbacks', sets: 3, reps: '15', rest: '45s' },
+                ],
+                foods: ['Banana + whey shake (pre-workout)', 'Chicken caesar salad (no croutons)', 'Mixed nuts & dried fruit', 'Tilapia with quinoa & spinach', 'Greek yoghurt with berries (night)']
+            },
+            {
+                day: 'Saturday',
+                name: 'Legs Volume + Posing Practice',
+                exercises: [
+                    { name: 'Leg Press', sets: 5, reps: '12-15', rest: '90s' },
+                    { name: 'Leg Extension', sets: 4, reps: '15-20', rest: '45s' },
+                    { name: 'Lying Leg Curl', sets: 4, reps: '15', rest: '45s' },
+                    { name: 'Standing Calf Raises', sets: 5, reps: '20', rest: '45s' },
+                    { name: 'Posing Practice (mandatory compulsories)', sets: 1, reps: '20min', rest: '-' },
+                ],
+                foods: ['White rice + egg whites (pre-workout)', 'Grilled chicken with roasted veg & brown rice', 'Protein shake post-workout', 'Lean beef & vegetable soup', 'Cottage cheese with honey (night)']
+            },
+            {
+                day: 'Sunday',
+                name: 'Rest & Recovery',
+                exercises: [
+                    { name: 'Posing & Transitions Practice', sets: 1, reps: '20min', rest: '-' },
+                    { name: 'Light Stretching / Yoga', sets: 1, reps: '20min', rest: '-' },
+                    { name: 'Foam Rolling', sets: 1, reps: '10min', rest: '-' },
+                ],
+                foods: ['Overnight oats with fruit', 'Grilled salmon with salad', 'Almonds & an apple', 'Chicken & sweet potato bowl', 'Casein shake + berries (night)']
             },
         ]
     },
+
     mens_physique: {
         title: "Men's Physique Program",
         subtitle: 'Upper body focus with sculpted delts, no heavy legs needed.',
         days: [
             {
-                name: 'Day 1 — Shoulders & Arms',
+                day: 'Monday',
+                name: 'Shoulders — Cannonball Delts',
                 exercises: [
                     { name: 'Overhead Press', sets: 4, reps: '8-10', rest: '90s' },
                     { name: 'Lateral Raises', sets: 5, reps: '15-20', rest: '45s' },
                     { name: 'Rear Delt Flyes', sets: 4, reps: '15-20', rest: '45s' },
-                    { name: 'Barbell Curl', sets: 3, reps: '10-12', rest: '60s' },
-                    { name: 'Tricep Pushdown', sets: 3, reps: '12-15', rest: '60s' },
-                ]
+                    { name: 'Cable Lateral Raise', sets: 3, reps: '15-20', rest: '45s' },
+                    { name: 'Arnold Press', sets: 3, reps: '12', rest: '60s' },
+                ],
+                foods: ['Egg whites with oats (pre-workout)', 'Chicken breast with white rice & broccoli', 'Almonds & an apple', 'Shrimp stir-fry with brown rice', 'Casein shake (before bed)']
             },
             {
-                name: 'Day 2 — Chest & Back',
+                day: 'Tuesday',
+                name: 'Chest & Triceps — Upper Chest Focus',
                 exercises: [
                     { name: 'Incline Dumbbell Press', sets: 4, reps: '8-10', rest: '90s' },
-                    { name: 'Cable Flyes', sets: 3, reps: '12-15', rest: '60s' },
-                    { name: 'Lat Pulldown', sets: 4, reps: '10-12', rest: '60s' },
-                    { name: 'Seated Cable Row', sets: 3, reps: '10-12', rest: '60s' },
-                    { name: 'Face Pulls', sets: 3, reps: '15-20', rest: '45s' },
-                ]
+                    { name: 'Cable Flyes (high-to-low)', sets: 4, reps: '12-15', rest: '60s' },
+                    { name: 'Push-ups (weighted vest)', sets: 3, reps: '15-20', rest: '45s' },
+                    { name: 'Tricep Pushdown', sets: 4, reps: '12-15', rest: '45s' },
+                    { name: 'Overhead Tricep Extension', sets: 3, reps: '12-15', rest: '45s' },
+                ],
+                foods: ['Banana + whey protein (pre-workout)', 'Salmon with sweet potato & green beans', 'Greek yoghurt with berries', 'Turkey wrap with avocado & veggies', 'Cottage cheese (night)']
             },
             {
-                name: 'Day 3 — Light Legs & Core',
+                day: 'Wednesday',
+                name: 'Back & Biceps — Width & Thickness',
+                exercises: [
+                    { name: 'Pull-ups (wide grip)', sets: 4, reps: '8-10', rest: '90s' },
+                    { name: 'Lat Pulldown', sets: 4, reps: '10-12', rest: '60s' },
+                    { name: 'Seated Cable Row', sets: 3, reps: '10-12', rest: '60s' },
+                    { name: 'Barbell Curl', sets: 4, reps: '10-12', rest: '60s' },
+                    { name: 'Hammer Curl', sets: 3, reps: '12-15', rest: '60s' },
+                    { name: 'Face Pulls', sets: 3, reps: '20', rest: '45s' },
+                ],
+                foods: ['Protein shake + oats (pre-workout)', 'Ground turkey with quinoa & asparagus', 'Rice cakes with peanut butter', 'Lean beef with roasted potatoes & spinach', 'Casein shake (night)']
+            },
+            {
+                day: 'Thursday',
+                name: 'Shoulders — Volume Day',
+                exercises: [
+                    { name: 'Dumbbell Shoulder Press', sets: 4, reps: '12-15', rest: '60s' },
+                    { name: 'Upright Row', sets: 3, reps: '12', rest: '60s' },
+                    { name: 'Cable Lateral Raise', sets: 5, reps: '15-20', rest: '45s' },
+                    { name: 'Rear Delt Machine Fly', sets: 4, reps: '15-20', rest: '45s' },
+                    { name: 'Shrugs', sets: 3, reps: '15', rest: '60s' },
+                ],
+                foods: ['Egg white omelette + toast (pre-workout)', 'Grilled tilapia with jasmine rice & veggies', 'Protein bar', 'Chicken caesar salad', 'Greek yoghurt with almonds (night)']
+            },
+            {
+                day: 'Friday',
+                name: 'Arms & Core — Arm Detail',
+                exercises: [
+                    { name: 'Preacher Curl', sets: 4, reps: '10-12', rest: '60s' },
+                    { name: 'Cable Curl', sets: 3, reps: '12-15', rest: '45s' },
+                    { name: 'Skull Crushers', sets: 4, reps: '10-12', rest: '60s' },
+                    { name: 'Tricep Dips', sets: 3, reps: '12-15', rest: '60s' },
+                    { name: 'Hanging Leg Raise', sets: 4, reps: '15', rest: '45s' },
+                    { name: 'Cable Crunch', sets: 3, reps: '20', rest: '45s' },
+                ],
+                foods: ['Brown rice + chicken (pre-workout)', 'Shrimp with brown rice & steamed veg', 'Mixed nuts & dried fruit', 'Turkey mince with pasta', 'Casein protein shake (night)']
+            },
+            {
+                day: 'Saturday',
+                name: 'Light Legs, Core & Posing',
                 exercises: [
                     { name: 'Leg Press', sets: 3, reps: '12-15', rest: '90s' },
-                    { name: 'Leg Curl', sets: 3, reps: '12-15', rest: '60s' },
                     { name: 'Walking Lunges', sets: 3, reps: '16 steps', rest: '60s' },
-                    { name: 'Calf Raises', sets: 4, reps: '15-20', rest: '45s' },
+                    { name: 'Calf Raises', sets: 4, reps: '20', rest: '45s' },
                     { name: 'Plank', sets: 3, reps: '60s', rest: '45s' },
-                ]
+                    { name: 'Posing Practice (front & side)', sets: 1, reps: '20min', rest: '-' },
+                ],
+                foods: ['Oatmeal + egg whites (pre-workout)', 'Chicken breast with sweet potato & broccoli', 'Protein shake post-workout', 'Lean steak with salad', 'Cottage cheese with berries (night)']
+            },
+            {
+                day: 'Sunday',
+                name: 'Rest & Recovery',
+                exercises: [
+                    { name: 'Posing Practice', sets: 1, reps: '20min', rest: '-' },
+                    { name: 'Light Stretching', sets: 1, reps: '15min', rest: '-' },
+                ],
+                foods: ['Overnight oats with banana', 'Grilled chicken salad', 'Almonds & an apple', 'Salmon with steamed rice & veggies', 'Greek yoghurt (night)']
             },
         ]
     },
+
     powerlifting: {
         title: 'Powerlifting Program (SBD)',
         subtitle: 'Squat, Bench, Deadlift focused with heavy singles and volume blocks.',
         days: [
             {
-                name: 'Day 1 — Heavy Squat',
+                day: 'Monday',
+                name: 'Heavy Squat Day',
                 exercises: [
-                    { name: 'Squat', sets: 5, reps: '3-5', rest: '3-5min' },
-                    { name: 'Pause Squat', sets: 3, reps: '3', rest: '3min' },
+                    { name: 'Squat (90%+ intensity)', sets: 5, reps: '3-5', rest: '3-5min' },
+                    { name: 'Pause Squat (75%)', sets: 3, reps: '3', rest: '3min' },
                     { name: 'Leg Press', sets: 3, reps: '8-10', rest: '2min' },
                     { name: 'Good Mornings', sets: 3, reps: '8-10', rest: '90s' },
-                ]
+                    { name: 'Core: Weighted Plank', sets: 3, reps: '45s', rest: '60s' },
+                ],
+                foods: ['White rice + eggs (pre-workout)', 'Beef steak with mashed potato & greens', 'Protein shake with whole milk', 'Peanut butter toast + banana', 'Casein shake with whole milk (night)']
             },
             {
-                name: 'Day 2 — Heavy Bench',
+                day: 'Tuesday',
+                name: 'Heavy Bench Press Day',
                 exercises: [
-                    { name: 'Bench Press', sets: 5, reps: '3-5', rest: '3-5min' },
-                    { name: 'Close-Grip Bench', sets: 3, reps: '6-8', rest: '2min' },
+                    { name: 'Bench Press (90%+ intensity)', sets: 5, reps: '3-5', rest: '3-5min' },
+                    { name: 'Close-Grip Bench (75%)', sets: 3, reps: '6-8', rest: '2min' },
                     { name: 'Overhead Press', sets: 3, reps: '6-8', rest: '2min' },
-                    { name: 'Dumbbell Rows', sets: 3, reps: '8-10', rest: '90s' },
-                ]
+                    { name: 'Dumbbell Rows', sets: 4, reps: '8-10', rest: '90s' },
+                    { name: 'Tricep Pushdown', sets: 3, reps: '12-15', rest: '60s' },
+                ],
+                foods: ['Oatmeal + whey (pre-workout)', 'Ground beef with rice & roasted carrots', 'Hard-boiled eggs & almonds', 'Chicken pasta with olive oil', 'Full-fat Greek yoghurt (night)']
             },
             {
-                name: 'Day 3 — Heavy Deadlift',
+                day: 'Wednesday',
+                name: 'Squat Accessory & Recovery',
                 exercises: [
-                    { name: 'Deadlift', sets: 5, reps: '2-3', rest: '3-5min' },
-                    { name: 'Deficit Deadlift', sets: 3, reps: '3-5', rest: '3min' },
-                    { name: 'Barbell Row', sets: 3, reps: '6-8', rest: '2min' },
+                    { name: 'Front Squat (technique focus)', sets: 4, reps: '3', rest: '2min' },
+                    { name: 'Romanian Deadlift', sets: 3, reps: '8', rest: '90s' },
+                    { name: 'Hip Thrust', sets: 3, reps: '10', rest: '90s' },
+                    { name: 'Leg Curl', sets: 3, reps: '12', rest: '60s' },
+                    { name: 'Ab Wheel Rollout', sets: 3, reps: '10', rest: '60s' },
+                ],
+                foods: ['Sweet potato + eggs (pre-workout)', 'Salmon with quinoa & asparagus', 'Cottage cheese + walnuts', 'Turkey with pasta & marinara sauce', 'Casein shake (night)']
+            },
+            {
+                day: 'Thursday',
+                name: 'Heavy Deadlift Day',
+                exercises: [
+                    { name: 'Deadlift (90%+ intensity)', sets: 5, reps: '2-3', rest: '4-5min' },
+                    { name: 'Deficit Deadlift (75%)', sets: 3, reps: '3', rest: '3min' },
+                    { name: 'Barbell Row', sets: 4, reps: '6-8', rest: '2min' },
                     { name: 'Lat Pulldown', sets: 3, reps: '10-12', rest: '90s' },
-                ]
+                    { name: 'Farmer Walks', sets: 3, reps: '30m', rest: '2min' },
+                ],
+                foods: ['White rice + beef (pre-workout)', 'Lean beef with roasted potato & broccoli', 'Protein shake + milk', 'Peanut butter & banana sandwich on whole grain', 'Full-fat yoghurt (night)']
+            },
+            {
+                day: 'Friday',
+                name: 'Bench Accessory & Upper Volume',
+                exercises: [
+                    { name: 'Paused Bench Press (70%)', sets: 4, reps: '5', rest: '2min' },
+                    { name: 'Pin Press', sets: 3, reps: '5', rest: '2min' },
+                    { name: 'Incline Dumbbell Press', sets: 3, reps: '8-10', rest: '90s' },
+                    { name: 'Pull-ups', sets: 4, reps: 'AMRAP', rest: '90s' },
+                    { name: 'Tricep Dips (weighted)', sets: 3, reps: '8-10', rest: '90s' },
+                ],
+                foods: ['Eggs + toast + OJ (pre-workout)', 'Chicken thighs with rice & green beans', 'Almonds & a protein bar', 'Beef mince with whole-grain pasta', 'Casein shake with peanut butter (night)']
+            },
+            {
+                day: 'Saturday',
+                name: 'Competition Simulation / Volume',
+                exercises: [
+                    { name: 'Squat (meet-style, opener weight)', sets: 3, reps: '1', rest: '5min' },
+                    { name: 'Bench Press (meet-style, opener weight)', sets: 3, reps: '1', rest: '5min' },
+                    { name: 'Deadlift (meet-style, opener weight)', sets: 3, reps: '1', rest: '5min' },
+                ],
+                foods: ['Big carb meal 2h before (rice + banana + eggs)', 'Post-session: steak, potato & broccoli', 'Protein shake + whole milk', 'Heavy dinner: pasta bolognese with beef', 'Casein shake + whole milk (night)']
+            },
+            {
+                day: 'Sunday',
+                name: 'Full Rest',
+                exercises: [
+                    { name: 'Light Walking (15-20min)', sets: 1, reps: '20min', rest: '-' },
+                    { name: 'Full-Body Foam Rolling & Stretching', sets: 1, reps: '15min', rest: '-' },
+                ],
+                foods: ['Oatmeal with honey & nuts', 'Grilled chicken with salad & olive oil', 'Mixed nuts & fruit', 'Beef stew with roasted vegetables', 'Greek yoghurt with almonds (night)']
             },
         ]
     },
+
     deadlift: {
         title: 'Deadlift Specialist Program',
         subtitle: 'Maximize your pulling power with deadlift-focused training.',
         days: [
             {
-                name: 'Day 1 — Heavy Deadlift',
+                day: 'Monday',
+                name: 'Max Effort Deadlift',
                 exercises: [
-                    { name: 'Deadlift', sets: 6, reps: '1-3', rest: '4-5min' },
+                    { name: 'Deadlift (heavy singles)', sets: 6, reps: '1-3', rest: '4-5min' },
                     { name: 'Deficit Deadlift', sets: 3, reps: '3-5', rest: '3min' },
                     { name: 'Barbell Row', sets: 4, reps: '6-8', rest: '2min' },
-                ]
+                    { name: 'Ab Rollout', sets: 3, reps: '10', rest: '60s' },
+                ],
+                foods: ['Rice + eggs + coffee (pre-workout)', 'Lean beef with roasted potato & spinach', 'Protein shake + whole milk', 'Steak & sweet potato', 'Casein shake (night)']
             },
             {
-                name: 'Day 2 — Accessories',
+                day: 'Tuesday',
+                name: 'Lower Accessories & Posterior Chain',
                 exercises: [
                     { name: 'Romanian Deadlift', sets: 4, reps: '6-8', rest: '2min' },
-                    { name: 'Leg Press', sets: 3, reps: '10-12', rest: '90s' },
                     { name: 'Good Mornings', sets: 3, reps: '8-10', rest: '90s' },
-                    { name: 'Pull-ups', sets: 3, reps: 'AMRAP', rest: '90s' },
+                    { name: 'Hip Thrust', sets: 4, reps: '10-12', rest: '90s' },
+                    { name: 'Leg Curl', sets: 3, reps: '12-15', rest: '60s' },
                     { name: 'Farmer Walks', sets: 3, reps: '40m', rest: '2min' },
-                ]
+                ],
+                foods: ['Oatmeal + whey (pre-workout)', 'Chicken thighs with rice & green beans', 'Hard-boiled eggs + almonds', 'Turkey with pasta & tomato sauce', 'Full-fat yoghurt (night)']
             },
             {
-                name: 'Day 3 — Volume Deadlift',
+                day: 'Wednesday',
+                name: 'Upper Body & Grip',
                 exercises: [
-                    { name: 'Deadlift (70%)', sets: 5, reps: '5', rest: '2min' },
-                    { name: 'Paused Deadlift', sets: 3, reps: '3', rest: '2min' },
-                    { name: 'Hip Thrust', sets: 3, reps: '10-12', rest: '90s' },
-                    { name: 'Lat Pulldown', sets: 3, reps: '10-12', rest: '60s' },
-                ]
+                    { name: 'Pull-ups (Weighted)', sets: 4, reps: '5-8', rest: '2min' },
+                    { name: 'Seated Cable Row', sets: 4, reps: '8-10', rest: '90s' },
+                    { name: 'Overhead Press', sets: 3, reps: '6-8', rest: '2min' },
+                    { name: 'Farmer Walks (heavy)', sets: 4, reps: '30m', rest: '2min' },
+                    { name: 'Wrist Roller', sets: 3, reps: '3 rolls', rest: '90s' },
+                ],
+                foods: ['Eggs + toast + banana (pre-workout)', 'Salmon with brown rice & broccoli', 'Cottage cheese + walnuts', 'Beef stir-fry with vegetables', 'Casein shake (night)']
+            },
+            {
+                day: 'Thursday',
+                name: 'Volume Deadlift Day',
+                exercises: [
+                    { name: 'Deadlift (70% 1RM)', sets: 5, reps: '5', rest: '2-3min' },
+                    { name: 'Paused Deadlift (at knee)', sets: 3, reps: '3', rest: '2-3min' },
+                    { name: 'Snatch-Grip Deadlift', sets: 3, reps: '4', rest: '2min' },
+                    { name: 'Leg Press', sets: 3, reps: '10-12', rest: '90s' },
+                ],
+                foods: ['Rice + beef + black coffee (pre-workout)', 'Ground turkey with mashed potato & peas', 'Protein bar + fruit', 'Chicken with pasta & olive oil', 'Whole milk + casein (night)']
+            },
+            {
+                day: 'Friday',
+                name: 'Squat & Back Strength',
+                exercises: [
+                    { name: 'Squat (supporting the pull)', sets: 4, reps: '5', rest: '3min' },
+                    { name: 'Lat Pulldown', sets: 4, reps: '8-10', rest: '90s' },
+                    { name: 'Single-Arm Dumbbell Row', sets: 4, reps: '8-10', rest: '90s' },
+                    { name: 'Face Pulls', sets: 3, reps: '20', rest: '45s' },
+                    { name: 'Hanging Leg Raise', sets: 3, reps: '15', rest: '45s' },
+                ],
+                foods: ['Oatmeal + eggs + OJ (pre-workout)', 'Beef steak with roasted sweet potato & greens', 'Mixed nuts & protein bar', 'Salmon with quinoa salad', 'Casein shake + almond butter (night)']
+            },
+            {
+                day: 'Saturday',
+                name: 'Conditioning & Grip Endurance',
+                exercises: [
+                    { name: 'Trap Bar Deadlift (moderate)', sets: 4, reps: '8', rest: '2min' },
+                    { name: 'Sled Pull / Push', sets: 5, reps: '30m', rest: '90s' },
+                    { name: 'Finger Curls (barbell)', sets: 4, reps: '15-20', rest: '60s' },
+                    { name: 'Hex Bar Hold', sets: 3, reps: '30-60s', rest: '90s' },
+                ],
+                foods: ['Rice + eggs (pre-workout)', 'Chicken thighs with baked potato & salad', 'Protein shake post-workout', 'Lean beef with roasted vegetables', 'Whole milk + casein (night)']
+            },
+            {
+                day: 'Sunday',
+                name: 'Full Rest',
+                exercises: [
+                    { name: 'Light Walking', sets: 1, reps: '20min', rest: '-' },
+                    { name: 'Stretching & Foam Rolling', sets: 1, reps: '15min', rest: '-' },
+                ],
+                foods: ['Overnight oats + banana', 'Grilled chicken caesar salad', 'Almonds & dried fruit', 'Beef stew with vegetables & bread', 'Greek yoghurt (night)']
             },
         ]
     },
+
     strongman: {
         title: 'Strongman Training Program',
         subtitle: 'Brutal, event-based training for atlas stones, yoke, and more.',
         days: [
             {
-                name: 'Day 1 — Max Effort Upper',
+                day: 'Monday',
+                name: 'Max Effort Upper Body',
                 exercises: [
-                    { name: 'Overhead Press (Log/Axle)', sets: 5, reps: '3-5', rest: '3min' },
+                    { name: 'Log Press / Axle Overhead Press', sets: 5, reps: '3-5', rest: '3min' },
                     { name: 'Bench Press', sets: 4, reps: '5-8', rest: '2min' },
                     { name: 'Barbell Row', sets: 4, reps: '6-8', rest: '2min' },
                     { name: 'Farmer Walks', sets: 4, reps: '50m', rest: '2min' },
-                ]
+                    { name: 'Dumbbell Rows', sets: 3, reps: '10', rest: '90s' },
+                ],
+                foods: ['Large rice bowl + eggs + coffee (pre-workout)', 'Steak with baked potato & vegetables', 'Protein shake + whole milk + banana', 'Pulled pork with rice & beans', 'Casein shake + peanut butter (night)']
             },
             {
-                name: 'Day 2 — Max Effort Lower',
+                day: 'Tuesday',
+                name: 'Max Effort Lower Body',
                 exercises: [
-                    { name: 'Squat', sets: 5, reps: '3-5', rest: '3-5min' },
-                    { name: 'Deadlift', sets: 5, reps: '2-3', rest: '3-5min' },
+                    { name: 'Squat (comp style)', sets: 5, reps: '3-5', rest: '3-5min' },
+                    { name: 'Deadlift (comp style)', sets: 4, reps: '2-3', rest: '4min' },
                     { name: 'Yoke Walk', sets: 4, reps: '30m', rest: '3min' },
                     { name: 'Leg Press', sets: 3, reps: '10-12', rest: '2min' },
-                ]
+                    { name: 'Good Mornings', sets: 3, reps: '8', rest: '90s' },
+                ],
+                foods: ['Oatmeal + eggs + whole milk (pre-workout)', 'Ground beef with mashed potato & broccoli', 'Protein bar + apple + nuts', 'Pasta bolognese with lean beef', 'Whole-fat cottage cheese (night)']
             },
             {
-                name: 'Day 3 — Events Day',
+                day: 'Wednesday',
+                name: 'Event Conditioning',
                 exercises: [
-                    { name: 'Atlas Stones', sets: 5, reps: '1-3', rest: '3min' },
-                    { name: 'Tire Flips', sets: 5, reps: '3-5', rest: '2min' },
-                    { name: 'Sandbag Carry', sets: 4, reps: '40m', rest: '2min' },
-                    { name: 'Grip Training', sets: 3, reps: '30-60s', rest: '90s' },
-                ]
+                    { name: 'Tire Flips', sets: 5, reps: '5', rest: '2-3min' },
+                    { name: 'Sandbag Loaded Carry', sets: 4, reps: '40m', rest: '2min' },
+                    { name: 'Sled Drag', sets: 4, reps: '40m', rest: '2min' },
+                    { name: 'Rope Battle', sets: 4, reps: '30s', rest: '90s' },
+                ],
+                foods: ['Rice + beef + banana (pre-workout)', 'Chicken stew with rice & root vegetables', 'Whole milk + protein shake', 'Salmon with quinoa & sweet potato', 'Casein shake (night)']
+            },
+            {
+                day: 'Thursday',
+                name: 'Upper Volume & Overhead Strength',
+                exercises: [
+                    { name: 'Dumbbell Overhead Press', sets: 4, reps: '8-10', rest: '90s' },
+                    { name: 'Pull-ups (Weighted)', sets: 4, reps: '5-8', rest: '2min' },
+                    { name: 'Close-Grip Bench Press', sets: 3, reps: '8-10', rest: '90s' },
+                    { name: 'Lat Pulldown', sets: 3, reps: '10-12', rest: '60s' },
+                    { name: 'Wrist Roller', sets: 3, reps: '3 rolls', rest: '90s' },
+                ],
+                foods: ['Eggs + toast + OJ (pre-workout)', 'Beef mince with pasta & tomato sauce', 'Mixed nuts & protein bar', 'Grilled chicken with sweet potato & greens', 'Whole milk kefir (night)']
+            },
+            {
+                day: 'Friday',
+                name: 'Event-Specific Training',
+                exercises: [
+                    { name: 'Atlas Stones (loading)', sets: 5, reps: '1-3', rest: '3min' },
+                    { name: 'Keg Carry', sets: 4, reps: '30m', rest: '2min' },
+                    { name: 'Frame Carry', sets: 3, reps: '40m', rest: '2-3min' },
+                    { name: 'Grip Training (thick bar)', sets: 4, reps: '30-60s', rest: '90s' },
+                ],
+                foods: ['Big carb meal pre-session: rice + eggs + honey', 'Steak with baked potato & coleslaw', 'Protein shake + whole milk', 'Pulled chicken with quinoa & roasted veg', 'Full-fat yoghurt + honey (night)']
+            },
+            {
+                day: 'Saturday',
+                name: 'Lower Volume & Recovery Work',
+                exercises: [
+                    { name: 'Box Squat (60-70%)', sets: 4, reps: '5', rest: '2min' },
+                    { name: 'Romanian Deadlift', sets: 3, reps: '8', rest: '90s' },
+                    { name: 'Hip Thrust', sets: 3, reps: '12', rest: '90s' },
+                    { name: 'Calf Raises', sets: 3, reps: '20', rest: '60s' },
+                    { name: 'Core: Pallof Press', sets: 3, reps: '10/side', rest: '60s' },
+                ],
+                foods: ['Oatmeal + whey (pre-workout)', 'Chicken thighs with rice & roasted vegetables', 'Protein bar + banana', 'Ground beef & vegetable stew', 'Casein shake + peanut butter (night)']
+            },
+            {
+                day: 'Sunday',
+                name: 'Full Rest & Refeed',
+                exercises: [
+                    { name: 'Light Walking', sets: 1, reps: '20-30min', rest: '-' },
+                    { name: 'Soft-Tissue Work / Massage', sets: 1, reps: '15min', rest: '-' },
+                ],
+                foods: ['Large pancake breakfast with syrup & eggs', 'Pasta with beef & tomato sauce', 'Ice cream + fruit (treat meal)', 'Grilled salmon with large potato & broccoli', 'Whole milk + casein (night)']
             },
         ]
     },
+
     crossfit: {
         title: 'CrossFit Competition Prep',
         subtitle: 'WOD-ready programming with strength, cardio, and skill work.',
         days: [
             {
-                name: 'Day 1 — Strength + Metcon',
+                day: 'Monday',
+                name: 'Strength + Metcon',
                 exercises: [
                     { name: 'Back Squat', sets: 5, reps: '3', rest: '2-3min' },
                     { name: 'WOD: 21-15-9 Thrusters & Pull-ups', sets: 1, reps: 'For Time', rest: '-' },
                     { name: 'Ring Muscle-ups', sets: 4, reps: '3-5', rest: '2min' },
-                ]
+                    { name: 'Toes-to-Bar', sets: 3, reps: '15', rest: '60s' },
+                ],
+                foods: ['Banana + rice cakes + honey (pre-WOD)', 'Chicken with white rice & sweet potato', 'Protein shake post-WOD', 'Turkey wrap with avocado & greens', 'Casein shake (night)']
             },
             {
-                name: 'Day 2 — Olympic Lifts + Cardio',
+                day: 'Tuesday',
+                name: 'Olympic Lifts + Cardio Engine',
                 exercises: [
                     { name: 'Clean & Jerk', sets: 5, reps: '2', rest: '2-3min' },
-                    { name: 'Snatch', sets: 5, reps: '2', rest: '2-3min' },
+                    { name: 'Snatch (technique focus)', sets: 5, reps: '2', rest: '2-3min' },
                     { name: 'WOD: 5 Rounds (200m Run, 15 Burpees)', sets: 1, reps: 'For Time', rest: '-' },
-                ]
+                ],
+                foods: ['Oatmeal + whey (pre-workout)', 'Salmon with sushi rice & cucumber', 'Energy gels / fruit during WOD', 'Ground chicken with pasta & pesto', 'Full-fat Greek yoghurt (night)']
             },
             {
-                name: 'Day 3 — Engine & Bodyweight',
+                day: 'Wednesday',
+                name: 'Gymnastics & Skill Work',
                 exercises: [
-                    { name: 'Rowing Intervals', sets: 8, reps: '500m', rest: '90s' },
-                    { name: 'Handstand Walk', sets: 4, reps: '15m', rest: '2min' },
-                    { name: 'WOD: AMRAP 12 min (10 Box Jumps, 10 Toes-to-Bar)', sets: 1, reps: 'AMRAP', rest: '-' },
-                ]
+                    { name: 'Handstand Walk', sets: 5, reps: '15m', rest: '2min' },
+                    { name: 'Bar Muscle-ups', sets: 5, reps: '3-5', rest: '90s' },
+                    { name: 'Double Unders', sets: 5, reps: '50', rest: '45s' },
+                    { name: 'L-Sit Hold', sets: 4, reps: '20s', rest: '60s' },
+                    { name: 'WOD: EMOM 15min (5 HSPU + 10 GHD Sit-ups)', sets: 1, reps: 'EMOM', rest: '-' },
+                ],
+                foods: ['Bagel with peanut butter + banana (pre-workout)', 'Grilled tilapia with rice & vegetables', 'Protein bar + apple', 'Chicken caesar salad', 'Casein shake (night)']
+            },
+            {
+                day: 'Thursday',
+                name: 'Heavy Lifting Day',
+                exercises: [
+                    { name: 'Deadlift (heavy)', sets: 5, reps: '3', rest: '3min' },
+                    { name: 'Overhead Squat', sets: 4, reps: '3', rest: '2min' },
+                    { name: 'Push Press (heavy)', sets: 4, reps: '5', rest: '2min' },
+                    { name: 'Pull-ups (weighted)', sets: 4, reps: '6', rest: '2min' },
+                    { name: 'WOD: "DT" — 5 Rounds (12 DL, 9 Hang PC, 6 Push Jerk)', sets: 1, reps: 'For Time', rest: '-' },
+                ],
+                foods: ['White rice + eggs + coffee (pre-WOD)', 'Steak with sweet potato & broccoli', 'Protein shake + banana post-WOD', 'Chicken & rice bowl', 'Casein shake + almond butter (night)']
+            },
+            {
+                day: 'Friday',
+                name: 'Aerobic Engine & Rowing',
+                exercises: [
+                    { name: 'Rowing Intervals (500m x 8)', sets: 8, reps: '500m', rest: '90s' },
+                    { name: 'Assault Bike Intervals', sets: 5, reps: '1min ON / 1min OFF', rest: '-' },
+                    { name: 'WOD: AMRAP 12min (10 Box Jumps, 10 T2B)', sets: 1, reps: 'AMRAP', rest: '-' },
+                ],
+                foods: ['Oatmeal + honey + protein (pre-workout)', 'Grilled chicken with rice & avocado', 'Coconut water + banana (mid-session)', 'Turkey & sweet potato bowl', 'Greek yoghurt with berries (night)']
+            },
+            {
+                day: 'Saturday',
+                name: 'Competition Simulation',
+                exercises: [
+                    { name: 'Event 1: Max Lift (Snatch or Clean & Jerk)', sets: 3, reps: '1 attempt', rest: 'Full recovery' },
+                    { name: 'Event 2: Chipper WOD (team or solo)', sets: 1, reps: 'For Time', rest: 'Full recovery' },
+                    { name: 'Event 3: AMRAP (sport-specific)', sets: 1, reps: 'AMRAP', rest: '-' },
+                ],
+                foods: ['Full carb breakfast: pancakes + eggs + fruit', 'Chicken with white rice & banana (between events)', 'Electrolyte drinks throughout', 'Post-comp: Pasta with beef sauce', 'Recovery shake + casein (night)']
+            },
+            {
+                day: 'Sunday',
+                name: 'Active Recovery',
+                exercises: [
+                    { name: 'Easy 20-min Zone 2 Row or Bike', sets: 1, reps: '20min', rest: '-' },
+                    { name: 'Mobility Flow & Yoga', sets: 1, reps: '20min', rest: '-' },
+                    { name: 'Foam Rolling', sets: 1, reps: '10min', rest: '-' },
+                ],
+                foods: ['Overnight oats + berries', 'Grilled salmon with salad', 'Mixed nuts & fruit', 'Chicken soup with whole-grain bread', 'Greek yoghurt with honey (night)']
             },
         ]
     },
+
     olympic_weightlifting: {
         title: 'Olympic Weightlifting Program',
         subtitle: 'Snatch and Clean & Jerk periodized training.',
         days: [
             {
-                name: 'Day 1 — Snatch Focus',
+                day: 'Monday',
+                name: 'Snatch Focus — Heavy',
                 exercises: [
-                    { name: 'Snatch', sets: 6, reps: '2', rest: '2-3min' },
-                    { name: 'Snatch Pull', sets: 3, reps: '3', rest: '2min' },
-                    { name: 'Overhead Squat', sets: 3, reps: '3', rest: '2min' },
-                    { name: 'Back Squat', sets: 4, reps: '3', rest: '3min' },
-                ]
+                    { name: 'Snatch (work to daily max)', sets: 6, reps: '2', rest: '2-3min' },
+                    { name: 'Snatch Pull', sets: 4, reps: '3', rest: '2min' },
+                    { name: 'Overhead Squat', sets: 4, reps: '3', rest: '2min' },
+                    { name: 'Back Squat (heavy)', sets: 4, reps: '3', rest: '3min' },
+                ],
+                foods: ['White rice + egg whites + banana (pre-workout)', 'Grilled chicken with jasmine rice & broccoli', 'Rice cakes + honey (between sessions if 2x day)', 'Lean beef with roasted potato & spinach', 'Casein shake (night)']
             },
             {
-                name: 'Day 2 — Clean & Jerk Focus',
+                day: 'Tuesday',
+                name: 'Clean & Jerk Focus — Heavy',
                 exercises: [
-                    { name: 'Clean & Jerk', sets: 6, reps: '1+1', rest: '2-3min' },
-                    { name: 'Clean Pull', sets: 3, reps: '3', rest: '2min' },
-                    { name: 'Front Squat', sets: 4, reps: '3', rest: '3min' },
-                    { name: 'Push Press', sets: 3, reps: '5', rest: '2min' },
-                ]
+                    { name: 'Clean & Jerk (work to daily max)', sets: 6, reps: '1+1', rest: '2-3min' },
+                    { name: 'Clean Pull', sets: 4, reps: '3', rest: '2min' },
+                    { name: 'Front Squat (heavy)', sets: 4, reps: '3', rest: '3min' },
+                    { name: 'Push Press', sets: 4, reps: '5', rest: '2min' },
+                ],
+                foods: ['Egg whites + oats + fruit (pre-workout)', 'Salmon with white rice & asparagus', 'Coconut water + protein shake (mid-session)', 'Chicken with pasta & tomato sauce', 'Casein shake (night)']
             },
             {
-                name: 'Day 3 — Technique + Strength',
+                day: 'Wednesday',
+                name: 'Technique & Skill Refinement',
                 exercises: [
-                    { name: 'Power Snatch', sets: 5, reps: '3', rest: '2min' },
-                    { name: 'Power Clean', sets: 5, reps: '2', rest: '2min' },
-                    { name: 'Deadlift', sets: 3, reps: '5', rest: '3min' },
+                    { name: 'Hang Snatch (light-moderate)', sets: 5, reps: '3', rest: '90s' },
+                    { name: 'Hang Clean & Jerk', sets: 5, reps: '2', rest: '90s' },
+                    { name: 'Power Snatch', sets: 4, reps: '3', rest: '2min' },
+                    { name: 'Power Clean (technique)', sets: 4, reps: '3', rest: '2min' },
+                    { name: 'Back Squat (moderate, volume)', sets: 4, reps: '5', rest: '2min' },
+                ],
+                foods: ['Oatmeal + banana + honey (pre-workout)', 'Tuna with brown rice & cucumber', 'Almonds & dried fruit', 'Grilled chicken with sweet potato', 'Cottage cheese + walnuts (night)']
+            },
+            {
+                day: 'Thursday',
+                name: 'Snatch + Strength',
+                exercises: [
+                    { name: 'Snatch (85-90%)', sets: 5, reps: '2', rest: '2-3min' },
+                    { name: 'Snatch Balance', sets: 4, reps: '3', rest: '2min' },
+                    { name: 'Deadlift (snatch-grip)', sets: 3, reps: '5', rest: '3min' },
                     { name: 'Good Mornings', sets: 3, reps: '8-10', rest: '90s' },
-                ]
+                ],
+                foods: ['White rice + eggs + coffee (pre-workout)', 'Lean beef with mashed potato & vegetables', 'Protein shake post-session', 'Turkey wrap with avocado', 'Casein shake (night)']
+            },
+            {
+                day: 'Friday',
+                name: 'Clean & Jerk + Front Squat Volume',
+                exercises: [
+                    { name: 'Clean & Jerk (80-90%)', sets: 5, reps: '1+1', rest: '2-3min' },
+                    { name: 'Jerk from Rack', sets: 4, reps: '3', rest: '2min' },
+                    { name: 'Front Squat (volume)', sets: 4, reps: '5', rest: '2-3min' },
+                    { name: 'Push Press (85%)', sets: 3, reps: '3', rest: '2min' },
+                ],
+                foods: ['Banana + rice cakes + honey (pre-workout)', 'Salmon with jasmine rice & green beans', 'Mixed nuts & protein shake', 'Chicken & sweet potato bowl', 'Casein shake (night)']
+            },
+            {
+                day: 'Saturday',
+                name: 'Competition Simulation',
+                exercises: [
+                    { name: 'Snatch (opener, 2nd & 3rd attempt simulation)', sets: 3, reps: '1', rest: '6-8min (comp style)' },
+                    { name: 'Clean & Jerk (opener, 2nd & 3rd attempt simulation)', sets: 3, reps: '1+1', rest: '6-8min (comp style)' },
+                ],
+                foods: ['Large carb meal 2h before: rice + eggs + OJ', 'Intra-session: electrolyte drinks + banana', 'Post-session: steak + large portion of rice & veg', 'Evening: pasta with meatballs & marinara', 'Casein shake + full-fat milk (night)']
+            },
+            {
+                day: 'Sunday',
+                name: 'Full Rest',
+                exercises: [
+                    { name: 'Light Stretching & Mobility', sets: 1, reps: '20min', rest: '-' },
+                    { name: 'Take technique videos / film review', sets: 1, reps: '15min', rest: '-' },
+                ],
+                foods: ['Pancakes with eggs & fruit', 'Grilled chicken salad with olive oil', 'Almonds & an orange', 'Beef stew with roasted vegetables', 'Greek yoghurt with honey (night)']
             },
         ]
     },
+
     arm_wrestling: {
         title: 'Arm Wrestling Prep Program',
         subtitle: 'Grip, wrist, and pulling chain dominance.',
         days: [
             {
-                name: 'Day 1 — Table Training & Pulling',
+                day: 'Monday',
+                name: 'Table Training & Pulling Power',
                 exercises: [
                     { name: 'Table Sparring', sets: 6, reps: '30s bouts', rest: '2min' },
                     { name: 'Wrist Curl (Pronation)', sets: 4, reps: '12-15', rest: '60s' },
                     { name: 'Wrist Curl (Supination)', sets: 4, reps: '12-15', rest: '60s' },
                     { name: 'Hammer Curl', sets: 4, reps: '8-10', rest: '90s' },
-                ]
+                    { name: 'Wrist Roller', sets: 3, reps: '3 rolls', rest: '90s' },
+                ],
+                foods: ['Oatmeal + banana + coffee (pre-workout)', 'Grilled chicken with brown rice & spinach', 'Almonds & an apple', 'Beef stir-fry with vegetables & rice', 'Casein shake (night)']
             },
             {
-                name: 'Day 2 — Back & Biceps Power',
+                day: 'Tuesday',
+                name: 'Back & Biceps — Pulling Chain',
                 exercises: [
-                    { name: 'Barbell Row', sets: 4, reps: '6-8', rest: '2min' },
+                    { name: 'Barbell Row (supinated grip)', sets: 4, reps: '6-8', rest: '2min' },
                     { name: 'Pull-ups (Weighted)', sets: 4, reps: '5-8', rest: '2min' },
                     { name: 'Preacher Curl', sets: 4, reps: '8-10', rest: '90s' },
+                    { name: 'Hammer Curl', sets: 4, reps: '8-10', rest: '90s' },
                     { name: 'Grip Trainer (Crush)', sets: 5, reps: '15-20', rest: '60s' },
-                ]
+                ],
+                foods: ['Egg whites + oats (pre-workout)', 'Salmon with quinoa & asparagus', 'Cottage cheese + walnuts', 'Turkey mince with pasta & tomato sauce', 'Casein shake (night)']
             },
             {
-                name: 'Day 3 — Endurance & Conditioning',
+                day: 'Wednesday',
+                name: 'Wrist & Forearm Deep Work',
                 exercises: [
-                    { name: 'Rope Climbing', sets: 4, reps: '1 rep', rest: '2min' },
-                    { name: 'Farmer Walks', sets: 3, reps: '40m', rest: '2min' },
+                    { name: 'Thumb-Side Wrist Curl', sets: 4, reps: '15', rest: '60s' },
+                    { name: 'Pinch Grip Plates', sets: 4, reps: '30-60s hold', rest: '90s' },
+                    { name: 'Finger Extension Band', sets: 4, reps: '20', rest: '45s' },
+                    { name: 'Rope Clamp Rows', sets: 4, reps: '10-12', rest: '90s' },
+                    { name: 'Forearm Flexion Machine', sets: 3, reps: '15-20', rest: '60s' },
+                ],
+                foods: ['Rice cakes + peanut butter (pre-workout)', 'Chicken breast with sweet potato & green beans', 'Protein bar + fruit', 'Lean beef wrap with greens', 'Cottage cheese + almonds (night)']
+            },
+            {
+                day: 'Thursday',
+                name: 'Table Sparring + Elbow Conditioning',
+                exercises: [
+                    { name: 'Table Sparring (top roll focus)', sets: 6, reps: '30s bouts', rest: '2min' },
+                    { name: 'Zottman Curl', sets: 4, reps: '10-12', rest: '60s' },
+                    { name: 'Reverse Curl (barbell)', sets: 4, reps: '10-12', rest: '60s' },
+                    { name: 'Cable Wrist Curl', sets: 3, reps: '15-20', rest: '60s' },
+                    { name: 'Grip Endurance: High-Rep Hang', sets: 3, reps: '30-60s', rest: '90s' },
+                ],
+                foods: ['Banana + protein shake (pre-workout)', 'Grilled tilapia with brown rice & broccoli', 'Greek yoghurt + berries', 'Salmon salad with avocado', 'Casein shake (night)']
+            },
+            {
+                day: 'Friday',
+                name: 'Endurance & Conditioning',
+                exercises: [
+                    { name: 'Rope Climbing', sets: 4, reps: '1 climb', rest: '2min' },
+                    { name: 'Farmer Walks', sets: 4, reps: '40m', rest: '2min' },
                     { name: 'Finger Curls', sets: 4, reps: '15-20', rest: '60s' },
-                    { name: 'Wrist Roller', sets: 3, reps: '3 rolls', rest: '90s' },
-                ]
+                    { name: 'Towel Pull-ups', sets: 3, reps: 'AMRAP', rest: '2min' },
+                    { name: 'Kettlebell Swings', sets: 4, reps: '15', rest: '60s' },
+                ],
+                foods: ['Oatmeal + eggs (pre-workout)', 'Ground turkey with rice & mixed veg', 'Mixed nuts & an orange', 'Chicken with pasta & olive oil', 'Cottage cheese + honey (night)']
+            },
+            {
+                day: 'Saturday',
+                name: 'Match Day Simulation',
+                exercises: [
+                    { name: 'Live Table Sparring (competition rounds)', sets: 8, reps: '10s-30s bouts', rest: '3min' },
+                    { name: 'Light Accessory: Wrist Flexion & Extension', sets: 2, reps: '15', rest: '60s' },
+                    { name: 'Grip Finisher: Barbell Holds', sets: 3, reps: '30s each hand', rest: '90s' },
+                ],
+                foods: ['Pre-match: banana + rice cakes + coffee', 'Between rounds: electrolytes + fruit', 'Post-session: chicken with white rice & salad', 'Evening: lean beef with roasted potato & greens', 'Casein shake (night)']
+            },
+            {
+                day: 'Sunday',
+                name: 'Rest & Forearm Recovery',
+                exercises: [
+                    { name: 'Ice/Contrast Bath for Forearms', sets: 1, reps: '10min', rest: '-' },
+                    { name: 'Wrist & Elbow Mobility Routine', sets: 1, reps: '15min', rest: '-' },
+                ],
+                foods: ['Scrambled eggs with avocado & toast', 'Grilled chicken salad', 'Almonds & berries', 'Salmon with brown rice & spinach', 'Greek yoghurt with honey (night)']
             },
         ]
     },
+
     other: {
         title: 'General Competition Prep',
         subtitle: 'A well-rounded strength & conditioning base for any sport.',
         days: [
             {
-                name: 'Day 1 — Strength',
+                day: 'Monday',
+                name: 'Strength Foundation',
                 exercises: [
                     { name: 'Squat', sets: 4, reps: '5', rest: '3min' },
                     { name: 'Bench Press', sets: 4, reps: '5', rest: '3min' },
                     { name: 'Barbell Row', sets: 4, reps: '6-8', rest: '2min' },
-                ]
+                    { name: 'Core: Plank', sets: 3, reps: '60s', rest: '45s' },
+                ],
+                foods: ['Oatmeal + eggs + coffee (pre-workout)', 'Chicken with brown rice & broccoli', 'Greek yoghurt + almonds', 'Lean beef with roasted sweet potato & greens', 'Casein shake (night)']
             },
             {
-                name: 'Day 2 — Power & Explosiveness',
+                day: 'Tuesday',
+                name: 'Power & Explosiveness',
                 exercises: [
                     { name: 'Deadlift', sets: 4, reps: '3', rest: '3min' },
                     { name: 'Overhead Press', sets: 4, reps: '5', rest: '2min' },
                     { name: 'Box Jumps', sets: 4, reps: '5', rest: '90s' },
                     { name: 'Pull-ups', sets: 3, reps: 'AMRAP', rest: '90s' },
-                ]
+                    { name: 'Broad Jumps', sets: 3, reps: '5', rest: '90s' },
+                ],
+                foods: ['Banana + rice cakes + honey (pre-workout)', 'Salmon with white rice & asparagus', 'Protein shake post-workout', 'Turkey wrap with avocado', 'Cottage cheese (night)']
             },
             {
-                name: 'Day 3 — Conditioning',
+                day: 'Wednesday',
+                name: 'Sport Conditioning',
                 exercises: [
-                    { name: 'Rowing Intervals', sets: 6, reps: '500m', rest: '90s' },
+                    { name: 'Rowing Intervals (90% effort)', sets: 6, reps: '500m', rest: '90s' },
                     { name: 'Farmer Walks', sets: 4, reps: '40m', rest: '2min' },
-                    { name: 'Plank', sets: 3, reps: '60s', rest: '45s' },
                     { name: 'Burpees', sets: 3, reps: '15', rest: '60s' },
-                ]
+                    { name: 'Plank', sets: 3, reps: '60s', rest: '45s' },
+                ],
+                foods: ['Smoothie: oats + fruit + protein + almond milk', 'Grilled chicken with quinoa & vegetables', 'Almonds & an apple', 'Ground turkey with pasta', 'Greek yoghurt + berries (night)']
+            },
+            {
+                day: 'Thursday',
+                name: 'Strength Volume',
+                exercises: [
+                    { name: 'Squat (70% 1RM)', sets: 5, reps: '5', rest: '2min' },
+                    { name: 'Bench Press (70% 1RM)', sets: 5, reps: '5', rest: '2min' },
+                    { name: 'Lat Pulldown', sets: 4, reps: '8-10', rest: '90s' },
+                    { name: 'Dumbbell Shoulder Press', sets: 3, reps: '10-12', rest: '60s' },
+                    { name: 'Hanging Leg Raise', sets: 3, reps: '15', rest: '45s' },
+                ],
+                foods: ['Egg whites + oats (pre-workout)', 'Tuna with rice & cucumber', 'Protein bar + fruit', 'Chicken thighs with sweet potato & greens', 'Casein shake (night)']
+            },
+            {
+                day: 'Friday',
+                name: 'Speed & Plyometrics',
+                exercises: [
+                    { name: 'Sprint Intervals (30m)', sets: 6, reps: '30m', rest: '2min' },
+                    { name: 'Trap Bar Jumps', sets: 4, reps: '5', rest: '90s' },
+                    { name: 'Lateral Bounds', sets: 3, reps: '10/side', rest: '60s' },
+                    { name: 'Med Ball Slam', sets: 4, reps: '10', rest: '60s' },
+                    { name: 'Battle Ropes', sets: 3, reps: '30s', rest: '60s' },
+                ],
+                foods: ['Banana + protein shake (pre-workout)', 'Grilled tilapia with jasmine rice & broccoli', 'Mixed nuts & dried fruit', 'Chicken caesar salad', 'Cottage cheese (night)']
+            },
+            {
+                day: 'Saturday',
+                name: 'Full Competition Simulation',
+                exercises: [
+                    { name: 'Competition Round (sport-specific)', sets: 1, reps: 'Full effort', rest: 'Full recovery' },
+                    { name: 'Strength Top-Off: Squat + Deadlift openers', sets: 2, reps: '1 each', rest: '5min' },
+                    { name: 'Conditioning Finisher: 10min AMRAP', sets: 1, reps: 'AMRAP', rest: '-' },
+                ],
+                foods: ['Large pre-event meal: rice + chicken + banana + OJ', 'Between events: electrolytes + fruit', 'Post-event: steak with potato & salad', 'Evening: pasta bolognese with beef', 'Casein shake (night)']
+            },
+            {
+                day: 'Sunday',
+                name: 'Full Rest & Reflection',
+                exercises: [
+                    { name: 'Light Walk / Jog', sets: 1, reps: '20min', rest: '-' },
+                    { name: 'Stretching & Foam Rolling', sets: 1, reps: '15min', rest: '-' },
+                ],
+                foods: ['Overnight oats with berries & banana', 'Grilled salmon with salad & olive oil', 'Mixed nuts & an apple', 'Chicken & vegetable soup with bread', 'Greek yoghurt with honey (night)']
             },
         ]
     }
