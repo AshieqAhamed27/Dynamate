@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamate - Train Smarter. Grow Faster.</title>
+    <meta name="description" content="Dynamate is an intelligent training system for smart workout progression.">
+    <!-- Favicon -->
+    <link rel="icon" href="WhatsApp Image 2026-04-16 at 7.43.06 PM.jpeg">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- ======================== -->
+        <!-- LANDING PAGE VIEW -->
+        <!-- ======================== -->
+        <main id="landing-view" class="view active">
+            <!-- Navbar -->
+            <nav class="navbar section-container">
+                <div class="logo">Dyna<span>mate</span></div>
+                <div class="nav-links">
+                    <a href="#features">Features</a>
+                    <a href="#how-it-works">How it Works</a>
+                    <a href="#pricing">Pricing</a>
+                    <button id="nav-login-btn" class="btn" style="color: var(--accent); border: 1px solid var(--border); font-weight: 500;" onclick="app.navigateToAuth('login')">Log In</button>
+                    <button id="nav-signup-btn" class="btn btn-primary" onclick="app.navigateToAuth('signup')">Sign Up</button>
+                    <button id="nav-logout-btn" class="btn btn-primary hidden" onclick="app.logout()">Logout</button>
+                </div>
+            </nav>
+
+            <!-- Hero Section -->
+            <header class="hero section-container">
+                <div class="hero-content">
+                    <div class="badge">Intelligent Training System</div>
+                    <h1 class="hero-title">Train Smarter.<br>Grow <span class="text-gradient">Faster.</span></h1>
+                    <p class="hero-subtitle">Stop guessing your weights. Dynamate uses your effort and recovery to automatically calculate your optimal progression for every session.</p>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary btn-large" onclick="app.navigateToApp()">
+                            Start Your Journey <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="glass-card mockup-card">
+                        <div class="mockup-header">
+                            <i class="fa-solid fa-dumbbell"></i>
+                            <span>Bench Press</span>
+                        </div>
+                        <div class="mockup-body">
+                            <div class="rec-badge positive">
+                                <i class="fa-solid fa-arrow-trend-up"></i> Increase weight by 5%
+                            </div>
+                            <div class="mockup-stats">
+                                <div>
+                                    <span class="label">Last Week</span>
+                                    <span class="value">200 kg</span>
+                                </div>
+                                <div>
+                                    <span class="label">Today's Goal</span>
+                                    <span class="value highlight">210 kg</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Features Section -->
+            <section id="features" class="features section-container">
+                <div class="section-header">
+                    <h2>Everything you need to <span class="text-gradient">optimize</span></h2>
+                    <p>Built for athletes who want to leave the spreadsheets behind.</p>
+                </div>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-brain"></i></div>
+                        <h3>Smart Recommendations</h3>
+                        <p>Our algorithm adjusts your weights based on your performance, ensuring constant progress without burnout.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+                        <h3>Effort-Based Progression</h3>
+                        <p>Rate your sets from 1-10. We use your subjective effort to calibrate the perfect intensity for your next session.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-bed-pulse"></i></div>
+                        <h3>Recovery Tracking</h3>
+                        <p>Log your sleep and soreness. Dynamate scales back your training automatically when your body needs rest.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-chart-simple"></i></div>
+                        <h3>Workout Logging</h3>
+                        <p>A fast, frictionless interface to log your exercises, sets, and reps right from your phone in the gym.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- How it Works Section -->
+            <section id="how-it-works" class="how-it-works section-container">
+                <div class="section-header">
+                    <h2>How <span class="text-gradient">Dynamate</span> Works</h2>
+                </div>
+                <div class="steps-container">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h3>Log Workout</h3>
+                        <p>Input your sets, reps, and weight lifted effortlessly.</p>
+                    </div>
+                    <div class="step-connector"><i class="fa-solid fa-chevron-right"></i></div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h3>Rate Effort &amp; Recovery</h3>
+                        <p>Tell the app how hard it was and how you slept.</p>
+                    </div>
+                    <div class="step-connector"><i class="fa-solid fa-chevron-right"></i></div>
+                    <div class="step-card glow">
+                        <div class="step-number"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                        <h3>Get Adjustments</h3>
+                        <p>Receive your personalized weight target for next time.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pricing Section -->
+            <section id="pricing" class="pricing section-container">
+                <div class="section-header">
+                    <h2>Transparent <span class="text-gradient">Pricing</span></h2>
+                    <p>Unlock the full potential of your training.</p>
+                </div>
+                <div class="pricing-grid">
+                    <div class="pricing-card glass-card">
+                        <div class="pricing-header">
+                            <h3>Monthly</h3>
+                            <div class="price"><span class="currency">$</span>9<span class="period">/mo</span></div>
+                            <p>Perfect for those just starting out.</p>
+                        </div>
+                        <ul class="pricing-features">
+                            <li><i class="fa-solid fa-check text-primary"></i> Smart Recommendations</li>
+                            <li><i class="fa-solid fa-check text-primary"></i> Effort-Based Progression</li>
+                            <li><i class="fa-solid fa-check text-primary"></i> Workout Logging</li>
+                        </ul>
+                        <button class="btn btn-block" onclick="app.navigateToApp()">Get Started</button>
+                    </div>
+                    <div class="pricing-card glass-card primary-border popular">
+                        <div class="popular-badge">Most Popular</div>
+                        <div class="pricing-header">
+                            <h3>Yearly</h3>
+                            <div class="price"><span class="currency">$</span>79<span class="period">/yr</span></div>
+                            <p>Save over 25% with annual billing.</p>
+                        </div>
+                        <ul class="pricing-features">
+                            <li><i class="fa-solid fa-check text-primary"></i> All Monthly Features</li>
+                            <li><i class="fa-solid fa-check text-primary"></i> Advanced Analytics</li>
+                            <li><i class="fa-solid fa-check text-primary"></i> Priority Support</li>
+                        </ul>
+                        <button class="btn btn-primary btn-block" onclick="app.navigateToApp()">Get Started</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CTA Section -->
+            <section class="cta-section section-container">
+                <div class="cta-card glass-card">
+                    <h2>Ready to maximize your gains?</h2>
+                    <p>Join thousands of athletes training smarter with Dynamate.</p>
+                    <button class="btn btn-primary btn-large" onclick="app.navigateToApp()">
+                        Start Your Smart Training Journey
+                    </button>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <div class="logo">Dyna<span>mate</span></div>
+                <p>&copy; 2026 Dynamate Fitness. All rights reserved.</p>
+            </footer>
+        </main>
+
+        <!-- ======================== -->
+        <!-- AUTH PAGE VIEW -->
+        <!-- ======================== -->
+        <main id="auth-view" class="view">
+            <div class="auth-container">
+                <div class="glass-card auth-card">
+                    <div class="logo text-center mb-4">Dyna<span>mate</span></div>
+                    <h2 class="text-center mb-4" id="auth-title">Create an Account</h2>
+                    <p class="text-center text-muted mb-4" id="auth-subtitle">Join us to start optimizing your training.</p>
+                    
+                    <form id="auth-form" onsubmit="event.preventDefault(); app.handleAuth();">
+                        <div class="form-group" id="name-group">
+                            <label>Full Name</label>
+                            <input type="text" id="auth-name" class="form-control" placeholder="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="auth-email" class="form-control" required placeholder="name@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" class="form-control" required placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block mt-4" id="auth-submit">Sign Up</button>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <p class="text-muted" id="auth-switch-text">Already have an account? <a href="#" onclick="app.toggleAuthMode(); return false;" class="text-primary">Log In</a></p>
+                    </div>
+                    <button class="btn btn-block btn-icon mt-3" onclick="app.navigateToLanding()" style="margin: 0 auto; display: block;">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Home
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- ======================== -->
+        <!-- ONBOARDING PAGE VIEW -->
+        <!-- ======================== -->
+        <main id="onboarding-view" class="view">
+            <div class="auth-container">
+                <div class="glass-card auth-card" style="max-width: 520px;">
+                    <div class="logo text-center mb-4">Dyna<span>mate</span></div>
+                    <h2 class="text-center mb-4">Let's Get to Know You</h2>
+                    <p class="text-center text-muted mb-4">What are you looking for?</p>
+                    
+                    <form id="onboarding-form" onsubmit="event.preventDefault(); app.handleOnboarding();">
+                        <div class="form-group">
+                            <label>Training Goal</label>
+                            <select id="ob-goal" class="form-control" required onchange="app.handleOnboardingGoalChange()">
+                                <option value="" disabled selected>Select your goal</option>
+                                <option value="normal">Normal Fitness</option>
+                                <option value="competition">Competition</option>
+                            </select>
+                        </div>
+
+                        <div id="ob-competition-fields" class="hidden mt-4">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Weight (kg)</label>
+                                    <input type="number" id="ob-weight" class="form-control" min="30" step="0.1" placeholder="e.g. 75.5">
+                                </div>
+                                <div class="form-group">
+                                    <label>Height (cm)</label>
+                                    <input type="number" id="ob-height" class="form-control" min="100" step="1" placeholder="e.g. 175">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Competition Type</label>
+                                <select id="ob-comp-type" class="form-control">
+                                    <option value="" disabled selected>Select type</option>
+                                    <option value="bodybuilding">Bodybuilding</option>
+                                    <option value="classic_physique">Classic Physique</option>
+                                    <option value="mens_physique">Men's Physique</option>
+                                    <option value="powerlifting">Powerlifting (Squat/Bench/Deadlift)</option>
+                                    <option value="deadlift">Deadlift Only</option>
+                                    <option value="strongman">Strongman</option>
+                                    <option value="crossfit">CrossFit</option>
+                                    <option value="olympic_weightlifting">Olympic Weightlifting</option>
+                                    <option value="arm_wrestling">Arm Wrestling</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block mt-4">Complete Setup</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+
+        <!-- ======================== -->
+        <!-- CORE WEB APP VIEW -->
+        <!-- ======================== -->
+        <div id="app-view" class="view">
+            <!-- Mobile Topbar -->
+            <header class="app-header">
+                <div class="logo">Dyna<span>mate</span></div>
+                <button class="btn-icon" onclick="app.logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+            </header>
+
+            <div class="app-layout">
+                <!-- Sidebar Nav (Desktop) / Bottom Nav (Mobile) -->
+                <nav class="app-nav">
+                    <!-- Sidebar User Profile -->
+                    <div id="sidebar-profile" class="sidebar-profile hidden">
+                        <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                        <div class="user-info">
+                            <h4 id="user-display-name">Athlete</h4>
+                            <span id="sidebar-goal-badge" class="badge primary" style="font-size: 0.7rem; padding: 0.1rem 0.5rem;">Pro</span>
+                        </div>
+                    </div>
+
+                    <a href="#" class="nav-item active" data-target="dashboard">
+                        <i class="fa-solid fa-house"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-item" data-target="my-program">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                        <span>My Program</span>
+                    </a>
+                    <a href="#" class="nav-item" data-target="workout">
+                        <i class="fa-solid fa-dumbbell"></i>
+                        <span>Workout</span>
+                    </a>
+                    <a href="#" class="nav-item" data-target="recovery">
+                        <i class="fa-solid fa-bed-pulse"></i>
+                        <span>Recovery</span>
+                    </a>
+                    <a href="#" class="nav-item" data-target="progress">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Progress</span>
+                    </a>
+                    <a href="#" class="nav-item" data-target="goals">
+                        <i class="fa-solid fa-bullseye"></i>
+                        <span>Goals</span>
+                    </a>
+                    <a href="#" class="nav-item" data-target="body">
+                        <i class="fa-solid fa-weight-scale"></i>
+                        <span>Body</span>
+                    </a>
+                    <a href="#" class="nav-item" data-target="diet">
+                        <i class="fa-solid fa-utensils"></i>
+                        <span>Diet</span>
+                    </a>
+                </nav>
+
+                <!-- App Content Area -->
+                <main class="app-content">
+                    
+                    <!-- Dashboard Page -->
+                    <section id="dashboard" class="app-page active">
+                        <div class="page-header">
+                            <h2>Dashboard</h2>
+                            <p id="date-display" class="text-muted"></p>
+                        </div>
+
+                        <!-- Dashboard content is rendered dynamically by JS based on user goal -->
+                        <div id="dashboard-content">
+                            <!-- Populated by JS -->
+                        </div>
+                    </section>
+
+                    <!-- My Program Page (Recommended Workouts) -->
+                    <section id="my-program" class="app-page">
+                        <div class="page-header">
+                            <h2>My Program</h2>
+                            <p class="text-muted">Recommended workouts tailored to your goal.</p>
+                        </div>
+                        <div id="program-content">
+                            <!-- Populated by JS -->
+                        </div>
+                    </section>
+
+                    <!-- Workout Page -->
+                    <section id="workout" class="app-page">
+                        <div class="page-header">
+                            <h2>Log Workout</h2>
+                            <p class="text-muted">Record your performance for smart progression.</p>
+                        </div>
+
+                        <div class="glass-card form-card">
+                            <form id="workout-form" onsubmit="event.preventDefault(); app.saveWorkout();">
+                                <div class="form-group">
+                                    <label for="w-exercise">Exercise</label>
+                                    <select id="w-exercise" class="form-control" required onchange="app.updateWorkoutTargetDisplay()">
+                                        <option value="" disabled selected>Select an exercise</option>
+                                        <option value="Bench Press">Bench Press</option>
+                                        <option value="Squat">Squat</option>
+                                        <option value="Deadlift">Deadlift</option>
+                                        <option value="Overhead Press">Overhead Press</option>
+                                        <option value="Barbell Row">Barbell Row</option>
+                                    </select>
+                                </div>
+                                
+                                <div id="active-target-display" class="target-alert hidden">
+                                    <i class="fa-solid fa-bullseye"></i> Target: <span id="target-weight-val"></span>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="w-weight">Weight (kg)</label>
+                                        <input type="number" id="w-weight" class="form-control" required min="1" step="0.5" placeholder="e.g. 135">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="w-sets">Sets</label>
+                                        <input type="number" id="w-sets" class="form-control" required min="1" placeholder="e.g. 3">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="w-reps">Reps (Avg)</label>
+                                        <input type="number" id="w-reps" class="form-control" required min="1" placeholder="e.g. 10">
+                                    </div>
+                                </div>
+
+                                <div class="form-group slider-group mt-4">
+                                    <div class="slider-header">
+                                        <label for="w-effort">Perceived Effort (RPE)</label>
+                                        <span id="effort-val" class="slider-val badge">5</span>
+                                    </div>
+                                    <input type="range" id="w-effort" min="1" max="10" value="5" class="slider" oninput="document.getElementById('effort-val').textContent = this.value">
+                                    <div class="slider-labels">
+                                        <span>1 (Easy)</span>
+                                        <span>10 (Max)</span>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-block mt-4">Save Workout</button>
+                            </form>
+                        </div>
+                    </section>
+
+                    <!-- Workout Result Page -->
+                    <section id="workout-result" class="app-page">
+                        <div class="page-header text-center mt-4">
+                            <h2><i class="fa-solid fa-fire text-primary"></i> Workout Complete!</h2>
+                            <p class="text-muted">Great job pushing your limits.</p>
+                        </div>
+                        
+                        <div class="glass-card text-center mt-4 mb-4 result-card">
+                            <h3 id="res-exercise">Bench Press</h3>
+                            <div class="result-stats mt-3">
+                                <div><span class="label text-muted d-block text-sm">Weight</span><br><span class="value font-weight-bold" id="res-weight">135 kg</span></div>
+                                <div><span class="label text-muted d-block text-sm">Volume</span><br><span class="value font-weight-bold" id="res-volume">3 x 10</span></div>
+                                <div><span class="label text-muted d-block text-sm">Effort</span><br><span class="value font-weight-bold" id="res-effort">RPE 8</span></div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card recommendation-card primary-border text-center">
+                            <h3><i class="fa-solid fa-brain"></i> Next Session Target</h3>
+                            <p class="text-muted mb-3" id="res-reason">High effort last time. Good recovery.</p>
+                            <div class="badge primary text-2xl" id="res-target" style="font-size: 1.5rem; padding: 0.5rem 1rem;">140 kg</div>
+                        </div>
+
+                        <button class="btn btn-primary btn-block mt-4 btn-large" onclick="app.navigateAppPage('dashboard')">Continue to Dashboard</button>
+                    </section>
+
+                    <!-- Recovery Page -->
+                    <section id="recovery" class="app-page">
+                        <div class="page-header">
+                            <h2>Recovery Status</h2>
+                            <p class="text-muted">We use this to adapt your upcoming session volume.</p>
+                        </div>
+
+                        <div class="glass-card form-card">
+                            <form id="recovery-form" onsubmit="event.preventDefault(); app.saveRecovery();">
+                                <div class="form-group">
+                                    <label>Sleep Quality</label>
+                                    <div class="radio-group">
+                                        <label class="radio-card">
+                                            <input type="radio" name="r-sleep" value="Poor" required>
+                                            <div class="radio-content">
+                                                <i class="fa-solid fa-moon text-danger"></i>
+                                                <span>Poor</span>
+                                            </div>
+                                        </label>
+                                        <label class="radio-card">
+                                            <input type="radio" name="r-sleep" value="Average" checked>
+                                            <div class="radio-content">
+                                                <i class="fa-solid fa-moon text-warning"></i>
+                                                <span>Average</span>
+                                            </div>
+                                        </label>
+                                        <label class="radio-card">
+                                            <input type="radio" name="r-sleep" value="Good">
+                                            <div class="radio-content">
+                                                <i class="fa-solid fa-moon text-primary"></i>
+                                                <span>Good</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mt-4">
+                                    <label>Muscle Soreness</label>
+                                    <div class="radio-group">
+                                        <label class="radio-card">
+                                            <input type="radio" name="r-soreness" value="Low" checked required>
+                                            <div class="radio-content">
+                                                <i class="fa-solid fa-person-walking text-primary"></i>
+                                                <span>Low</span>
+                                            </div>
+                                        </label>
+                                        <label class="radio-card">
+                                            <input type="radio" name="r-soreness" value="Medium">
+                                            <div class="radio-content">
+                                                <i class="fa-solid fa-person-walking text-warning"></i>
+                                                <span>Medium</span>
+                                            </div>
+                                        </label>
+                                        <label class="radio-card">
+                                            <input type="radio" name="r-soreness" value="High">
+                                            <div class="radio-content">
+                                                <i class="fa-solid fa-person-walking text-danger"></i>
+                                                <span>High</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-block mt-4">Update Recovery</button>
+                            </form>
+                        </div>
+                    </section>
+
+                    <!-- Progress Page -->
+                    <section id="progress" class="app-page">
+                        <div class="page-header">
+                            <h2>Your Progress</h2>
+                            <p class="text-muted">Track your strength gains over time.</p>
+                        </div>
+
+                        <div class="filter-group mb-4">
+                            <select id="p-exercise-filter" class="form-control" onchange="app.renderProgress()">
+                                <option value="All">All Exercises</option>
+                                <option value="Bench Press">Bench Press</option>
+                                <option value="Squat">Squat</option>
+                                <option value="Deadlift">Deadlift</option>
+                                <option value="Overhead Press">Overhead Press</option>
+                                <option value="Barbell Row">Barbell Row</option>
+                            </select>
+                        </div>
+
+                        <div class="glass-card">
+                            <div class="history-list" id="progress-history">
+                                <!-- Populated by JS -->
+                                <div class="empty-state">No workout data available yet.</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Goals Page -->
+                    <section id="goals" class="app-page">
+                        <div class="page-header">
+                            <h2>Training Goals</h2>
+                            <p class="text-muted">Set targets and calculate your distance to achieving them.</p>
+                        </div>
+
+                        <div class="glass-card form-card mb-4" style="margin-bottom: 2rem;">
+                            <h3 style="margin-bottom: 1rem;"><i class="fa-solid fa-plus text-primary"></i> Add a New Goal</h3>
+                            <form id="goal-form" onsubmit="event.preventDefault(); app.saveGoal();" class="mt-3">
+                                <div class="form-group">
+                                    <label for="g-exercise">Exercise</label>
+                                    <select id="g-exercise" class="form-control" required>
+                                        <option value="" disabled selected>Select an exercise</option>
+                                        <option value="Bench Press">Bench Press</option>
+                                        <option value="Squat">Squat</option>
+                                        <option value="Deadlift">Deadlift</option>
+                                        <option value="Overhead Press">Overhead Press</option>
+                                        <option value="Barbell Row">Barbell Row</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="g-target">Target Weight (kg)</label>
+                                    <input type="number" id="g-target" class="form-control" required min="1" step="0.5" placeholder="e.g. 225">
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block mt-4">Set Goal</button>
+                            </form>
+                        </div>
+
+                        <div class="goals-list" id="goals-list">
+                            <!-- Populated by JS -->
+                            <div class="empty-state glass-card">No goals set yet. Set a goal above!</div>
+                        </div>
+                    </section>
+
+                    <!-- Body Results Page -->
+                    <section id="body" class="app-page">
+                        <div class="page-header">
+                            <h2>Body Results</h2>
+                            <p class="text-muted">Track your bodyweight and body fat percentage.</p>
+                        </div>
+
+                        <div class="glass-card form-card mb-4" style="margin-bottom: 2rem;">
+                            <h3 style="margin-bottom: 1rem;"><i class="fa-solid fa-plus text-primary"></i> Log Body Metrics</h3>
+                            <form id="body-form" onsubmit="event.preventDefault(); app.saveBodyMetrics();" class="mt-3">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="b-weight">Bodyweight (kg)</label>
+                                        <input type="number" id="b-weight" class="form-control" required min="30" step="0.1" placeholder="e.g. 75.5">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="b-fat">Body Fat (%)</label>
+                                        <input type="number" id="b-fat" class="form-control" min="1" step="0.1" placeholder="e.g. 15.0">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block mt-4">Save Metrics</button>
+                            </form>
+                        </div>
+
+                        <div class="page-header mt-4">
+                            <h3>Metrics History</h3>
+                        </div>
+                        <div class="glass-card">
+                            <div class="history-list" id="body-history">
+                                <!-- Populated by JS -->
+                                <div class="empty-state">No body metrics logged yet.</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Diet Plans & Tracking Page -->
+                    <section id="diet" class="app-page">
+                        <div class="page-header">
+                            <h2>Diet & Nutrition</h2>
+                            <p class="text-muted">Your meal plan and daily food tracker.</p>
+                        </div>
+
+                        <!-- Diet Plan Section -->
+                        <div class="diet-selector glass-card mb-4">
+                            <div class="form-group mb-0">
+                                <label for="diet-type">Select Your Path</label>
+                                <select id="diet-type" class="form-control" onchange="app.renderDietPlan()">
+                                    <option value="normal" selected>Normal Fitness Life (Sustainable)</option>
+                                    <option value="competition">Competition Prep (Aggressive/Strict)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="diet-plan-container">
+                            <!-- Populated by JS -->
+                        </div>
+
+                        <!-- Diet Tracking Section -->
+                        <div class="glass-card form-card mt-4" style="margin-top: 2rem;">
+                            <h3 style="margin-bottom: 1rem;"><i class="fa-solid fa-plus text-primary"></i> Log a Meal</h3>
+                            <form id="meal-form" onsubmit="event.preventDefault(); app.saveMeal();" class="mt-3">
+                                <div class="form-group">
+                                    <label for="m-name">Meal Name</label>
+                                    <select id="m-name" class="form-control" required>
+                                        <option value="" disabled selected>Select meal</option>
+                                        <option value="Breakfast">Breakfast</option>
+                                        <option value="Mid-Morning Snack">Mid-Morning Snack</option>
+                                        <option value="Lunch">Lunch</option>
+                                        <option value="Pre-Workout">Pre-Workout</option>
+                                        <option value="Post-Workout">Post-Workout</option>
+                                        <option value="Dinner">Dinner</option>
+                                        <option value="Evening Snack">Evening Snack</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="m-food">Food Items</label>
+                                    <input type="text" id="m-food" class="form-control" required placeholder="e.g. Chicken rice broccoli">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="m-calories">Calories</label>
+                                        <input type="number" id="m-calories" class="form-control" min="0" placeholder="e.g. 450">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="m-protein">Protein (g)</label>
+                                        <input type="number" id="m-protein" class="form-control" min="0" placeholder="e.g. 35">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="m-carbs">Carbs (g)</label>
+                                        <input type="number" id="m-carbs" class="form-control" min="0" placeholder="e.g. 50">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="m-fats">Fats (g)</label>
+                                        <input type="number" id="m-fats" class="form-control" min="0" placeholder="e.g. 12">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block mt-4">Log Meal</button>
+                            </form>
+                        </div>
+
+                        <!-- Today's Diet Summary -->
+                        <div class="page-header mt-4" style="margin-top: 2rem;">
+                            <h3>Today's Meals</h3>
+                        </div>
+                        <div id="diet-daily-summary" class="glass-card mb-4">
+                            <!-- Populated by JS -->
+                        </div>
+                        <div id="diet-log-container">
+                            <!-- Populated by JS -->
+                        </div>
+                    </section>
+                </main>
+            </div>
+            
+            <!-- Toast Notification -->
+            <div id="toast" class="toast hidden">
+                <i class="fa-solid fa-circle-check"></i>
+                <span id="toast-message">Success!</span>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
