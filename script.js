@@ -1046,6 +1046,35 @@ const store = {
         const meals = store.getMeals();
         const today = new Date().toDateString();
         return meals.filter(m => new Date(m.date).toDateString() === today);
+    },
+
+    // Analytics Helpers
+    getExerciseHistory: (exercise, limit = 5) => {
+        const workouts = store.getWorkouts();
+        return workouts.filter(w => w.exercise === exercise).reverse().slice(0, limit);
+    },
+
+    calculateVolume: (workout) => {
+        return (parseFloat(workout.weight) || 0) * (parseInt(workout.sets) || 0) * (parseInt(workout.reps) || 0);
+    },
+
+    getPersonalBest: (exercise) => {
+        const workouts = store.getWorkouts();
+        const filtered = workouts.filter(w => w.exercise === exercise);
+        if (filtered.length === 0) return 0;
+        return Math.max(...filtered.map(w => parseFloat(w.weight)));
+    },
+
+    getUserStats: () => {
+        const user = store.getUser() || {};
+        const profile = user.profile || {};
+        const metrics = store.getBodyMetrics();
+        const currentWeight = metrics.length > 0 ? parseFloat(metrics[metrics.length - 1].weight) : parseFloat(profile.weight) || 70;
+        const currentHeight = parseFloat(profile.height) || 170;
+        const age = 25; // Default age if not provided
+        const gender = 'male'; // Default
+        
+        return { weight: currentWeight, height: currentHeight, age, gender, goal: profile.goal || 'normal' };
     }
 };
 
@@ -1055,61 +1084,97 @@ const store = {
 const engine = {
     // Calculates the recommended next session weight for an exercise
     calculateNextTarget: (exercise) => {
-        const lastWorkout = store.getLastWorkout(exercise);
-        if (!lastWorkout) return null; // No history
+        const history = store.getExerciseHistory(exercise, 3);
+        if (history.length === 0) return null;
 
+        const lastWorkout = history[0];
         const recovery = store.getRecovery();
         const effort = parseInt(lastWorkout.effort);
         const currentWeight = parseFloat(lastWorkout.weight);
-
-        let action = 'maintain'; // maintain, increase, decrease
+        
+        let action = 'maintain'; // maintain, increase, decrease, deload
         let targetWeight = currentWeight;
         let percentage = 0;
+        let trend = 'stable';
 
-        // Core Logic
-        if (effort <= 5 && recovery.sleep === 'Good' && recovery.soreness === 'Low') {
+        // Trend Analysis
+        if (history.length >= 3) {
+            const efforts = history.map(h => parseInt(h.effort));
+            if (efforts.every(e => e <= 4)) trend = 'improving';
+            if (efforts.every(e => e >= 9)) trend = 'plateauing';
+        }
+
+        // Core Logic - Multi-Factor Recommendation
+        if (trend === 'improving' && recovery.sleep === 'Good') {
             action = 'increase';
-            percentage = 0.05; // 5% increase
-        } else if (effort >= 8 || recovery.soreness === 'High') {
+            percentage = 0.075; // Aggressive 7.5% increase
+        } else if (effort <= 5 && recovery.sleep !== 'Poor' && recovery.soreness === 'Low') {
+            action = 'increase';
+            percentage = 0.05; // Standard 5% increase
+        } else if (trend === 'plateauing' || effort >= 10 || (effort >= 9 && recovery.soreness === 'High')) {
             action = 'decrease';
-            percentage = 0.05; // 5% decrease
+            percentage = 0.10; // 10% deload to break plateau or manage fatigue
+        } else if (effort >= 8 || recovery.soreness === 'High' || recovery.sleep === 'Poor') {
+            action = 'decrease';
+            percentage = 0.05; // Light 5% reduction
         } else {
             action = 'maintain';
         }
 
-        // Apply math and round to nearest 2.5 kg (standard micro-plate)
+        // Apply math and round to nearest 2.5 kg
         if (action === 'increase') {
             targetWeight = currentWeight * (1 + percentage);
         } else if (action === 'decrease') {
             targetWeight = currentWeight * (1 - percentage);
         }
 
-        // Rounding to nearest 2.5
+        // Rounding logic
         targetWeight = Math.round(targetWeight / 2.5) * 2.5;
 
-        // Edge case: if rounded weight equals current weight but action was not maintain
-        if (action === 'increase' && targetWeight <= currentWeight) {
-             targetWeight = currentWeight + 2.5;
-        }
-        if (action === 'decrease' && targetWeight >= currentWeight) {
-             targetWeight = currentWeight - 2.5;
-        }
+        // Ensure change happens if action is not maintain
+        if (action === 'increase' && targetWeight <= currentWeight) targetWeight = currentWeight + 2.5;
+        if (action === 'decrease' && targetWeight >= currentWeight) targetWeight = Math.max(0, currentWeight - 2.5);
 
         return {
             exercise: exercise,
             currentWeight,
             targetWeight,
             action,
-            reason: _getReason(action, effort, recovery)
+            trend,
+            reason: _getImprovedReason(action, trend, effort, recovery)
         };
+    },
+
+    // Calculate TDEE using Mifflin-St Jeor Equation
+    calculateTDEE: () => {
+        const stats = store.getUserStats();
+        // Base BMR
+        let bmr = (10 * stats.weight) + (6.25 * stats.height) - (5 * stats.age);
+        bmr = stats.gender === 'male' ? bmr + 5 : bmr - 161;
+        
+        // Activity Multiplier (assuming moderate activity 1.55)
+        const activityMultiplier = 1.45;
+        let tdee = bmr * activityMultiplier;
+        
+        // Goal Adjustment
+        if (stats.goal === 'competition') tdee -= 300; // Deficit for prep
+        else tdee += 200; // Slight surplus for fitness/growth
+        
+        return Math.round(tdee);
     }
 };
 
-// Helper to formulate human-readable reasoning
-function _getReason(action, effort, recovery) {
-    if (action === 'increase') return `Low effort (${effort}/10) last time. Good recovery.`;
-    if (action === 'decrease') return (recovery.soreness === 'High') ? `High soreness detected. Deload.` : `High effort (${effort}/10) last time. Need recovery.`;
-    return `Solid effort. Maintain to build volume.`;
+// Helper for more sophisticated reasoning
+function _getImprovedReason(action, trend, effort, recovery) {
+    if (trend === 'improving') return `Exceptional trend detected. Pushing weight higher.`;
+    if (trend === 'plateauing') return `Consistent high effort detected. Deloading 10% to prevent stall.`;
+    if (action === 'increase') return `Low effort (${effort}/10) & good recovery. Time to progress.`;
+    if (action === 'decrease') {
+        if (recovery.sleep === 'Poor') return `Poor sleep detected. Reducing intensity to aid recovery.`;
+        if (recovery.soreness === 'High') return `Significant soreness. Reducing weight to manage fatigue.`;
+        return `High intensity (${effort}/10). Adjusting for sustainable volume.`;
+    }
+    return `Maintaining current weight to build technical proficiency.`;
 }
 
 // Helper: get user goal
@@ -1479,7 +1544,7 @@ const app = {
         if (recovery.sleep === 'Poor' || recovery.soreness === 'High') { recoveryStatus = 'Poor'; recoveryClass = 'poor'; }
         else if (recovery.sleep === 'Average' && recovery.soreness !== 'Low') { recoveryStatus = 'Average'; recoveryClass = 'average'; }
 
-        // Recommendations
+        // Recommendations with Trend Analysis
         const exercises = store.getUniqueExercises();
         let recsHTML = '<div class="empty-state">Log a workout to receive smart targets.</div>';
         if (exercises.length > 0) {
@@ -1488,11 +1553,23 @@ const app = {
                 const rec = engine.calculateNextTarget(ex);
                 if (rec) {
                     let icon = 'fa-minus', text = 'Maintain weight';
-                    if (rec.action === 'increase') { icon = 'fa-arrow-trend-up'; text = 'Increase by 5%'; }
-                    if (rec.action === 'decrease') { icon = 'fa-arrow-trend-down'; text = 'Reduce by 5%'; }
+                    if (rec.action === 'increase') { icon = 'fa-arrow-trend-up'; text = 'Increase weight'; }
+                    if (rec.action === 'decrease') { icon = 'fa-arrow-trend-down'; text = 'Reduce weight'; }
+                    
+                    const pb = store.getPersonalBest(ex);
+                    const isPB = rec.targetWeight > pb;
+                    const trendIcon = rec.trend === 'improving' ? '<i class="fa-solid fa-bolt text-warning" title="improving trend"></i>' : '';
+
                     recsHTML += `
                         <div class="rec-item ${rec.action}" onclick="app.fastLog('${ex}', ${rec.targetWeight})">
-                            <div><h4>${ex}</h4><p><i class="fa-solid ${icon}"></i> ${text}</p></div>
+                            <div style="flex-grow: 1;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <h4>${ex}</h4>
+                                    ${trendIcon}
+                                    ${isPB ? '<span class="badge text-xs" style="background: rgba(255,215,0,0.2); color: gold; border: 1px solid gold;">Potential PB</span>' : ''}
+                                </div>
+                                <p><i class="fa-solid ${icon}"></i> ${text}</p>
+                            </div>
                             <div class="rec-target ${rec.action}">${rec.targetWeight}</div>
                         </div>`;
                 }
@@ -1507,9 +1584,13 @@ const app = {
             recentWorkouts.forEach(w => {
                 const d = new Date(w.date);
                 const dateStr = `${d.getMonth()+1}/${d.getDate()} - ${w.sets}x${w.reps}`;
+                const volume = store.calculateVolume(w);
                 recentHTML += `
                     <div class="history-item">
-                        <div class="history-main"><h4>${w.exercise}</h4><p>${dateStr}</p></div>
+                        <div class="history-main">
+                            <h4>${w.exercise}</h4>
+                            <p>${dateStr} • <span class="text-accent">${volume} kg vol</span></p>
+                        </div>
                         <div class="history-stats"><span class="weight">${w.weight} kg</span><span class="effort">RPE ${w.effort}</span></div>
                     </div>`;
             });
@@ -1536,7 +1617,12 @@ const app = {
                 <div class="stat-card glass-card">
                     <div class="stat-icon"><i class="fa-solid fa-calendar-check"></i></div>
                     <div class="stat-value">${totalWorkouts}</div>
-                    <div class="stat-label">Total Workouts</div>
+                    <div class="stat-label">Lifetime Workouts</div>
+                </div>
+                <div class="stat-card glass-card">
+                    <div class="stat-icon"><i class="fa-solid fa-weight-hanging"></i></div>
+                    <div class="stat-value">${Math.round(workouts.filter(w => (new Date() - new Date(w.date)) / (1000 * 60 * 60 * 24) <= 7).reduce((s, w) => s + store.calculateVolume(w), 0) / 1000)}k</div>
+                    <div class="stat-label">Weekly Vol (kg)</div>
                 </div>
             </div>
 
@@ -1607,11 +1693,15 @@ const app = {
             const rec = engine.calculateNextTarget(ex);
             keyLiftsHTML += `
                 <div class="comp-lift-card glass-card" onclick="${rec ? `app.fastLog('${ex}', ${rec.targetWeight})` : ''}">
-                    <h4>${ex}</h4>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <h4>${ex}</h4>
+                        ${rec && rec.trend === 'improving' ? '<i class="fa-solid fa-bolt text-warning" style="font-size: 0.8rem;"></i>' : ''}
+                    </div>
                     <div class="comp-lift-stats">
                         <div><span class="text-muted">Current</span><br><b>${last ? last.weight + ' kg' : '—'}</b></div>
                         <div><span class="text-muted">Target</span><br><b class="text-primary">${rec ? rec.targetWeight + ' kg' : '—'}</b></div>
                     </div>
+                    ${rec && rec.targetWeight > store.getPersonalBest(ex) ? '<div style="font-size: 0.65rem; color: gold; margin-top: 5px;"><i class="fa-solid fa-star"></i> Potential PB</div>' : ''}
                 </div>`;
         });
 
@@ -1623,9 +1713,13 @@ const app = {
             recentWorkouts.forEach(w => {
                 const d = new Date(w.date);
                 const dateStr = `${d.getMonth()+1}/${d.getDate()} - ${w.sets}x${w.reps}`;
+                const volume = store.calculateVolume(w);
                 recentHTML += `
                     <div class="history-item">
-                        <div class="history-main"><h4>${w.exercise}</h4><p>${dateStr}</p></div>
+                        <div class="history-main">
+                            <h4>${w.exercise}</h4>
+                            <p>${dateStr} • <span class="text-accent">${volume} kg vol</span></p>
+                        </div>
                         <div class="history-stats"><span class="weight">${w.weight} kg</span><span class="effort">RPE ${w.effort}</span></div>
                     </div>`;
             });
@@ -1786,12 +1880,14 @@ const app = {
         workouts.forEach(w => {
             const d = new Date(w.date);
             const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const volume = store.calculateVolume(w);
             
             container.innerHTML += `
                 <div class="history-item">
                     <div class="history-main">
                         <h4>${w.exercise}</h4>
                         <p>${dateStr} • ${w.sets} sets x ${w.reps} reps</p>
+                        <p class="text-accent" style="font-size: 0.8rem; margin-top: 4px;">Total Volume: ${volume} kg</p>
                     </div>
                     <div class="history-stats">
                         <span class="weight">${w.weight} kg</span>
@@ -1921,22 +2017,22 @@ const app = {
                     <h3 class="text-gradient">Competition Prep Plan${titleExtra}</h3>
                     <p class="text-muted mt-2">Strict adherence required. Aimed at preserving muscle while aggressively stripping body fat or peaking for performance.</p>
                     
-                    <h4 class="mt-4 mb-3">Daily Target Macros</h4>
+                    <h4 class="mt-4 mb-3">Your Personalized Daily Targets</h4>
                     <div class="diet-macros">
                         <div class="macro-card" style="border-bottom: 2px solid var(--accent)">
+                            <h4>Calories</h4>
+                            <div class="value" style="color: var(--accent)">${engine.calculateTDEE()}</div>
+                            <small class="text-muted">Target based on goals</small>
+                        </div>
+                        <div class="macro-card" style="border-bottom: 2px solid var(--accent)">
                             <h4>Protein</h4>
-                            <div class="value" style="color: var(--accent)">${macros.protein}</div>
-                            <small class="text-muted">per kg of bodyweight</small>
+                            <div class="value" style="color: var(--accent)">${Math.round(store.getUserStats().weight * (parseFloat(macros.protein) || 2.2))}g</div>
+                            <small class="text-muted">High frequency intake</small>
                         </div>
                         <div class="macro-card" style="border-bottom: 2px solid var(--accent)">
                             <h4>Carbs</h4>
-                            <div class="value" style="color: var(--accent)">${macros.carbs}</div>
-                            <small class="text-muted">per kg of bodyweight</small>
-                        </div>
-                        <div class="macro-card" style="border-bottom: 2px solid var(--accent)">
-                            <h4>Fats</h4>
-                            <div class="value" style="color: var(--accent)">${macros.fats}</div>
-                            <small class="text-muted">per kg of bodyweight</small>
+                            <div class="value" style="color: var(--accent)">${Math.round(store.getUserStats().weight * (parseFloat(macros.carbs) || 2.5))}g</div>
+                            <small class="text-muted">Performance fuel</small>
                         </div>
                     </div>
 
@@ -1967,22 +2063,22 @@ const app = {
                     <h3 class="text-gradient">Normal Fitness Life</h3>
                     <p class="text-muted mt-2">Sustainable habits for building muscle and feeling good year-round without extreme tracking.</p>
                     
-                    <h4 class="mt-4 mb-3">Daily Target Macros</h4>
+                    <h4 class="mt-4 mb-3">Daily Target Baseline</h4>
                     <div class="diet-macros">
                         <div class="macro-card">
+                            <h4>Calories</h4>
+                            <div class="value">${engine.calculateTDEE()}</div>
+                            <small class="text-muted">Sustainable intake</small>
+                        </div>
+                        <div class="macro-card">
                             <h4>Protein</h4>
-                            <div class="value">1.8g</div>
-                            <small class="text-muted">per kg of bodyweight</small>
+                            <div class="value">${Math.round(store.getUserStats().weight * 1.8)}g</div>
+                            <small class="text-muted">Muscle preservation</small>
                         </div>
                         <div class="macro-card">
-                            <h4>Carbs</h4>
+                            <h4>Carbs/Fats</h4>
                             <div class="value">Flexible</div>
-                            <small class="text-muted">Eat to fuel workouts</small>
-                        </div>
-                        <div class="macro-card">
-                            <h4>Fats</h4>
-                            <div class="value">0.8g</div>
-                            <small class="text-muted">per kg of bodyweight</small>
+                            <small class="text-muted">Focus on whole foods</small>
                         </div>
                     </div>
 
@@ -2052,12 +2148,20 @@ const app = {
             return acc;
         }, { calories: 0, protein: 0, carbs: 0, fats: 0 });
 
+        const targetCals = engine.calculateTDEE();
+        const progress = Math.min(100, Math.round((totals.calories / targetCals) * 100));
+        
         summaryContainer.innerHTML = `
-            <div class="diet-summary-grid">
-                <div class="diet-sum-item">
-                    <span class="diet-sum-val">${Math.round(totals.calories)}</span>
-                    <span class="diet-sum-label">Calories</span>
+            <div style="margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span class="text-muted">Daily Calorie Budget</span>
+                    <span class="font-weight-bold">${Math.round(totals.calories)} / ${targetCals} kcal</span>
                 </div>
+                <div style="height: 10px; background: var(--bg-card-hover); border-radius: 5px; overflow: hidden; border: 1px solid var(--border);">
+                    <div style="width: ${progress}%; height: 100%; background: ${progress > 100 ? 'var(--danger)' : 'var(--primary)'}; transition: width 0.5s ease-out;"></div>
+                </div>
+            </div>
+            <div class="diet-summary-grid">
                 <div class="diet-sum-item">
                     <span class="diet-sum-val">${Math.round(totals.protein)}g</span>
                     <span class="diet-sum-label">Protein</span>
