@@ -1025,6 +1025,33 @@ const COURSES = [
     }
 ];
 
+const PLANS = [
+    {
+        id: 'plan_monthly',
+        title: 'Monthly Pro Plan',
+        instructor: 'DynaMate Premium',
+        duration: '1 Month',
+        modules: 'All Features',
+        price: 299,
+        originalPrice: 299,
+        level: 'Pro',
+        icon: 'fa-calendar-day',
+        color: '#ef4444'
+    },
+    {
+        id: 'plan_yearly',
+        title: 'Yearly Pro Plan',
+        instructor: 'DynaMate Premium',
+        duration: '1 Year',
+        modules: 'All Features',
+        price: 2499,
+        originalPrice: 3588,
+        level: 'Pro',
+        icon: 'fa-calendar-check',
+        color: '#ef4444'
+    }
+];
+
 // ==========================================
 // STORE (Local Storage Wrapper)
 // ==========================================
@@ -1518,7 +1545,10 @@ const app = {
                 if (sidebarProfile) sidebarProfile.classList.remove('hidden');
                 if (userDisplayName) userDisplayName.textContent = user.name || 'Athlete';
                 if (goalBadge && user.profile) {
-                    if (user.profile.goal === 'competition') {
+                    if (user.proStatus === 'active') {
+                        goalBadge.textContent = 'PRO Athlete';
+                        goalBadge.classList.add('primary');
+                    } else if (user.profile.goal === 'competition') {
                         goalBadge.textContent = _getCompLabel(_getCompType());
                     } else {
                         goalBadge.textContent = 'Fitness';
@@ -2495,14 +2525,14 @@ const app = {
     // Current course being purchased
     _activeCourseId: null,
 
-    openPaymentModal: (courseId) => {
-        const course = COURSES.find(c => c.id === courseId);
-        if (!course) return;
-        app._activeCourseId = courseId;
+    openPaymentModal: (itemId) => {
+        const item = COURSES.find(c => c.id === itemId) || PLANS.find(p => p.id === itemId);
+        if (!item) return;
+        app._activeCourseId = itemId;
 
-        document.getElementById('modal-course-title').textContent = course.title;
-        document.getElementById('modal-course-sub').textContent = `${course.instructor} · ${course.duration} · ${course.modules} Modules`;
-        document.getElementById('modal-course-price').innerHTML = `&#8377;${course.price.toLocaleString('en-IN')}`;
+        document.getElementById('modal-course-title').textContent = item.title;
+        document.getElementById('modal-course-sub').textContent = `${item.instructor} · ${item.duration} · ${item.modules} Modules`;
+        document.getElementById('modal-course-price').innerHTML = `&#8377;${item.price.toLocaleString('en-IN')}`;
         document.getElementById('utr-input').value = '';
 
         const modal = document.getElementById('payment-modal');
@@ -2534,17 +2564,36 @@ const app = {
         }
         if (!app._activeCourseId) return;
 
-        // Mark course as purchased
-        localStorage.setItem(`dm_course_${app._activeCourseId}`, 'purchased');
+        const isPlan = app._activeCourseId.startsWith('plan_');
+        
+        if (isPlan) {
+            const user = store.getUser();
+            if (user) {
+                user.proStatus = 'active';
+                user.planId = app._activeCourseId;
+                store.setUser(user);
+                app.showToast('Payment confirmed! Your Pro Subscription is now active. 🚀');
+            } else {
+                // If not logged in, we mark it as paid for this session
+                localStorage.setItem('dm_pending_pro', app._activeCourseId);
+                app.showToast('Payment confirmed! Please log in or sign up to activate your subscription.');
+                app.navigateToAuth('signup');
+            }
+        } else {
+            // Mark course as purchased
+            localStorage.setItem(`dm_course_${app._activeCourseId}`, 'purchased');
+            app.showToast('Payment confirmed! You are now enrolled. 🎉');
+        }
 
         document.getElementById('payment-modal').classList.add('hidden');
         document.body.style.overflow = '';
-
-        app.showToast('Payment confirmed! You are now enrolled. 🎉');
         app._activeCourseId = null;
 
-        // Re-render courses to reflect enrolled state
-        setTimeout(() => app.renderCourses(), 500);
+        // Re-render UI
+        setTimeout(() => {
+            app.updateAuthUI();
+            app.renderCourses();
+        }, 500);
     },
 
     // Mobile sidebar toggle
