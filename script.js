@@ -1348,6 +1348,13 @@ const app = {
     },
 
     navigateAppPage: (pageId) => {
+        // Close mobile sidebar if open
+        app.closeSidebar();
+
+        // Scroll app content to top
+        const content = document.querySelector('.app-content');
+        if (content) content.scrollTop = 0;
+
         // Update nav UI
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
         const activeNav = document.querySelector(`.nav-item[data-target="${pageId}"]`);
@@ -2538,6 +2545,21 @@ const app = {
 
         // Re-render courses to reflect enrolled state
         setTimeout(() => app.renderCourses(), 500);
+    },
+
+    // Mobile sidebar toggle
+    toggleSidebar: () => {
+        const nav = document.getElementById('app-nav');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (nav) nav.classList.toggle('sidebar-open');
+        if (overlay) overlay.classList.toggle('hidden');
+    },
+
+    closeSidebar: () => {
+        const nav = document.getElementById('app-nav');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (nav) nav.classList.remove('sidebar-open');
+        if (overlay) overlay.classList.add('hidden');
     },
 
     // Notification UI

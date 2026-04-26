@@ -293,13 +293,28 @@
         <div id="app-view" class="view">
             <!-- Mobile Topbar -->
             <header class="app-header">
-                <div class="logo">Dyna<span>mate</span></div>
-                <button class="btn-icon" onclick="app.logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+                <button class="hamburger-btn" id="hamburger-btn" onclick="app.toggleSidebar()" aria-label="Toggle menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="logo app-logo-link" onclick="app.navigateToLanding()" title="Back to Home" style="cursor:pointer;">
+                    Dyna<span>mate</span>
+                </div>
+                <button class="btn-icon header-logout" onclick="app.logout()" title="Logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </button>
             </header>
+
+            <!-- Mobile sidebar overlay -->
+            <div id="sidebar-overlay" class="sidebar-overlay hidden" onclick="app.closeSidebar()"></div>
 
             <div class="app-layout">
                 <!-- Sidebar Nav (Desktop) / Bottom Nav (Mobile) -->
-                <nav class="app-nav">
+                <nav class="app-nav" id="app-nav">
+                    <!-- Sidebar logo (desktop only) -->
+                    <div class="sidebar-logo" onclick="app.navigateToLanding()" title="Back to Home">
+                        <span class="logo">Dyna<span>mate</span></span>
+                        <span class="sidebar-home-hint"><i class="fa-solid fa-house"></i></span>
+                    </div>
                     <!-- Sidebar User Profile -->
                     <div id="sidebar-profile" class="sidebar-profile hidden">
                         <div class="avatar"><i class="fa-solid fa-user"></i></div>

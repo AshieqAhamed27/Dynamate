@@ -1922,3 +1922,231 @@ h4,
     80%  { transform: translateX(4px); }
     100% { transform: translateX(0); }
 }
+
+/* ============================
+   SIDEBAR LOGO & HOME LINK
+============================ */
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0.75rem;
+    transition: var(--transition);
+}
+.sidebar-logo:hover { background: var(--bg-card-hover); }
+.sidebar-logo .logo { font-size: 1.15rem; }
+.sidebar-home-hint {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    transition: color 0.2s;
+}
+.sidebar-logo:hover .sidebar-home-hint { color: var(--primary); }
+
+/* Hamburger */
+.hamburger-btn {
+    display: none;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-main);
+    width: 36px; height: 36px;
+    cursor: pointer;
+    font-size: 1rem;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+.hamburger-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+/* Sidebar overlay backdrop */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 998;
+    backdrop-filter: blur(3px);
+}
+.sidebar-overlay:not(.hidden) { display: block; }
+
+/* ============================
+   FULL RESPONSIVE SYSTEM
+============================ */
+
+/* --- Large Desktop (1280px+) keeps current --- */
+
+/* --- Tablet & small desktop (max 1024px) --- */
+@media (max-width: 1024px) {
+    .hero-content h1 { font-size: 2.8rem; }
+    .features-grid { grid-template-columns: repeat(2, 1fr); }
+    .dashboard-stats-row { grid-template-columns: repeat(3, 1fr); }
+    .courses-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* --- Tablet portrait (max 768px) --- */
+@media (max-width: 768px) {
+
+    /* Landing nav */
+    .nav-links { gap: 0.5rem; }
+    .nav-links a { font-size: 0.82rem; }
+    .nav-cta { display: none; }
+
+    /* Hero */
+    .hero { padding: 6rem 1.25rem 3rem; }
+    .hero-content h1 { font-size: 2.2rem; }
+    .hero-content p { font-size: 0.95rem; }
+    .hero-btns { flex-direction: column; gap: 0.75rem; align-items: stretch; }
+    .hero-btns .btn { text-align: center; }
+
+    /* Features / Pricing */
+    .features-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; max-width: 380px; margin: 0 auto; }
+
+    /* Auth & Onboarding */
+    .auth-container { padding: 1rem; }
+    .auth-card { padding: 1.75rem 1.25rem; }
+    .onboarding-card { padding: 1.75rem 1.25rem; }
+
+    /* App Header - show on mobile */
+    .app-header {
+        display: flex;
+        padding: 0 1rem;
+        height: 56px;
+    }
+    .hamburger-btn { display: flex; }
+
+    /* App layout: sidebar becomes a drawer */
+    .app-layout {
+        flex-direction: column;
+        padding-top: 56px; /* height of header */
+    }
+
+    /* Sidebar = slide-in drawer on mobile */
+    .app-nav {
+        position: fixed;
+        top: 0;
+        left: -280px;
+        width: 260px;
+        height: 100vh;
+        z-index: 999;
+        border-radius: 0;
+        border-right: 1px solid var(--border);
+        padding: 1rem 0;
+        overflow-y: auto;
+        transition: left 0.3s ease;
+        background: var(--bg-card);
+    }
+    .app-nav.sidebar-open { left: 0; }
+
+    /* Nav items become full rows in the drawer */
+    .app-nav .nav-item {
+        flex-direction: row;
+        padding: 0.85rem 1.5rem;
+        gap: 1rem;
+        font-size: 0.92rem;
+        border-radius: 0;
+        justify-content: flex-start;
+        border-left: 3px solid transparent;
+    }
+    .app-nav .nav-item.active {
+        border-left-color: var(--primary);
+        border-bottom: none;
+        background: rgba(239,68,68,0.08);
+    }
+    .app-nav .nav-item i { font-size: 1rem; }
+    .app-nav .nav-item span { display: block !important; font-size: 0.9rem; }
+    .sidebar-profile { display: flex !important; padding: 1rem 1.5rem 0.75rem; }
+
+    /* App content full width */
+    .app-content { padding: 1.25rem 1rem; }
+
+    /* Dashboard grids */
+    .dashboard-stats-row { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+    .dashboard-grid { grid-template-columns: 1fr; }
+
+    /* Courses */
+    .courses-grid { grid-template-columns: 1fr; }
+
+    /* Page header */
+    .page-header h2 { font-size: 1.4rem; }
+
+    /* Modal */
+    .modal-box { max-width: 98vw; margin: 0 0.5rem; }
+
+    /* Date display */
+    #date-display { font-size: 0.78rem; }
+
+    /* Form rows */
+    .form-row { flex-direction: column; gap: 0; }
+}
+
+/* --- Mobile (max 480px) --- */
+@media (max-width: 480px) {
+    /* Landing */
+    .landing-nav { padding: 0.75rem 1rem; }
+    .logo { font-size: 1.3rem; }
+    .hero-content h1 { font-size: 1.75rem; }
+    .hero-badges { flex-wrap: wrap; gap: 0.4rem; }
+    .section-container { padding: 3rem 1rem; }
+    .section-header h2 { font-size: 1.6rem; }
+
+    /* Auth */
+    .auth-card { padding: 1.5rem 1rem; }
+
+    /* Dashboard stats: 2 col */
+    .dashboard-stats-row { grid-template-columns: repeat(2, 1fr); }
+    .stat-card { padding: 0.85rem; }
+    .stat-value { font-size: 1.5rem; }
+
+    /* Comp lifts */
+    .comp-lifts-grid { grid-template-columns: 1fr; }
+
+    /* Program day */
+    .program-day-header { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
+
+    /* Workout result */
+    .result-grid { grid-template-columns: repeat(2, 1fr); }
+
+    /* Rec items */
+    .rec-item { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
+    .rec-target { align-self: flex-end; }
+
+    /* App header */
+    .app-header { padding: 0 0.75rem; }
+    .app-header .logo { font-size: 1.15rem; }
+
+    /* Toast */
+    .toast { right: 1rem; left: 1rem; bottom: 1.5rem; width: auto; }
+
+    /* Modals */
+    .modal-body { padding: 1rem; }
+    .modal-header { padding: 1rem 1rem 0; }
+    .modal-footer { padding: 0 1rem 1rem; }
+    .upi-amount { font-size: 1.6rem; }
+
+    /* Diet macros */
+    .diet-macros { grid-template-columns: repeat(2, 1fr); }
+
+    /* Courses */
+    .course-price { font-size: 1.2rem; }
+}
+
+/* --- Keep desktop sidebar hidden on mobile (app-header shows instead) --- */
+@media (min-width: 769px) {
+    .app-header { display: none; }
+    .hamburger-btn { display: none; }
+    .sidebar-overlay { display: none !important; }
+    .app-nav {
+        position: sticky;
+        top: 0;
+        left: 0;
+        width: 220px;
+        height: 100vh;
+        flex-shrink: 0;
+    }
+    .app-nav .sidebar-logo { display: flex; }
+    .app-layout { padding-top: 0; }
+}
