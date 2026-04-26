@@ -2148,3 +2148,49 @@ h4,
         overflow-y: auto;
     }
 }
+
+/* ============================
+   SOCIAL AUTH BUTTONS
+============================ */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 1.5rem 0;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border);
+}
+
+.auth-divider:not(:empty)::before {
+    margin-right: 1rem;
+}
+
+.auth-divider:not(:empty)::after {
+    margin-left: 1rem;
+}
+
+.btn-google {
+    background-color: #ffffff !important;
+    color: #1f1f1f !important;
+    border: 1px solid #dadce0 !important;
+    font-weight: 500;
+}
+
+.btn-google:hover {
+    background-color: #f8f9fa !important;
+    box-shadow: 0 1px 3px 0 rgba(60,64,67,0.30), 0 4px 8px 3px rgba(60,64,67,0.15) !important;
+    transform: translateY(-1px);
+}
+
+.btn-google img {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+}

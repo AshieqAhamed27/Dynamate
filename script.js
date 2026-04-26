@@ -1520,6 +1520,30 @@ const app = {
         }
     },
 
+    handleGoogleLogin: () => {
+        app.showToast('Redirecting to Google...', 'primary');
+        setTimeout(() => {
+            app.showToast('Successfully authenticated via Google!', 'primary');
+            // Mock a user login
+            const mockUser = {
+                email: 'google-user@example.com',
+                name: 'Google User',
+                onboardingComplete: false,
+                profile: {}
+            };
+            store.setUser(mockUser);
+            app.updateAuthUI();
+            
+            // Check if onboarding is needed
+            if (!mockUser.onboardingComplete) {
+                document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+                document.getElementById('onboarding-view').classList.add('active');
+            } else {
+                app.showApp();
+            }
+        }, 1500);
+    },
+
     logout: () => {
         localStorage.removeItem('dm_current_session');
         app.updateAuthUI();

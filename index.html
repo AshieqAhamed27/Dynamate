@@ -216,6 +216,13 @@
                         <div id="auth-error" class="auth-error hidden"></div>
                         <button type="submit" class="btn btn-primary btn-block mt-4" id="auth-submit">Sign Up</button>
                     </form>
+
+                    <div class="auth-divider">OR</div>
+                    
+                    <button class="btn btn-google btn-block" onclick="app.handleGoogleLogin()">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Logo.svg" alt="Google">
+                        Continue with Google
+                    </button>
                     
                     <div class="text-center mt-4">
                         <p class="text-muted" id="auth-switch-text">Already have an account? <a href="#" onclick="app.toggleAuthMode(); return false;" class="text-primary">Log In</a></p>
