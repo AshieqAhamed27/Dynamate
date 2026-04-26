@@ -1526,7 +1526,7 @@ h4,
 }
 
 .program-food-list li::before {
-    content: "•";
+    content: "ï¿½";
     color: var(--primary);
     font-weight: bold;
 }
@@ -1837,4 +1837,88 @@ h4,
     display: flex;
     flex-direction: column;
     gap: 0;
+}
+
+/* ============================
+   AUTH IMPROVEMENTS
+============================ */
+
+/* Password field with eye-toggle */
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.password-wrapper .form-control {
+    padding-right: 3rem;
+    width: 100%;
+}
+.password-toggle {
+    position: absolute;
+    right: 0.75rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.3rem;
+    transition: color 0.2s ease;
+    z-index: 2;
+}
+.password-toggle:hover {
+    color: var(--primary);
+}
+
+/* Forgot password link */
+.forgot-link {
+    display: none;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    text-align: right;
+}
+.forgot-link:hover {
+    color: var(--primary);
+}
+
+/* Auth inline error banner */
+.auth-error {
+    background: rgba(185, 28, 28, 0.12);
+    border: 1px solid rgba(185, 28, 28, 0.4);
+    color: #fca5a5;
+    border-radius: var(--radius-sm);
+    padding: 0.65rem 1rem;
+    font-size: 0.83rem;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    animation: shakeError 0.35s ease;
+}
+.auth-error::before {
+    content: '\f071';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 0.75rem;
+    margin-top: 1px;
+    flex-shrink: 0;
+    color: var(--danger);
+}
+.auth-error.hidden {
+    display: none !important;
+}
+
+@keyframes shakeError {
+    0%   { transform: translateX(0); }
+    20%  { transform: translateX(-6px); }
+    40%  { transform: translateX(6px); }
+    60%  { transform: translateX(-4px); }
+    80%  { transform: translateX(4px); }
+    100% { transform: translateX(0); }
 }

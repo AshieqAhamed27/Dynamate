@@ -1029,8 +1029,32 @@ const COURSES = [
 // STORE (Local Storage Wrapper)
 // ==========================================
 const store = {
-    getUser: () => JSON.parse(localStorage.getItem('dm_user')),
-    setUser: (user) => localStorage.setItem('dm_user', JSON.stringify(user)),
+    // Multi-user store
+    getUsers: () => JSON.parse(localStorage.getItem('dm_users')) || [],
+    setUsers: (users) => localStorage.setItem('dm_users', JSON.stringify(users)),
+
+    getUserByEmail: (email) => {
+        const users = store.getUsers();
+        return users.find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
+    },
+
+    getUser: () => {
+        const sessionEmail = localStorage.getItem('dm_current_session');
+        if (!sessionEmail) return null;
+        return store.getUserByEmail(sessionEmail);
+    },
+
+    setUser: (user) => {
+        const users = store.getUsers();
+        const idx = users.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase());
+        if (idx >= 0) {
+            users[idx] = { ...users[idx], ...user };
+        } else {
+            users.push(user);
+        }
+        store.setUsers(users);
+        localStorage.setItem('dm_current_session', user.email);
+    },
     getWorkouts: () => JSON.parse(localStorage.getItem('dm_workouts')) || [],
     
     saveWorkout: (workout) => {
@@ -1395,44 +1419,75 @@ const app = {
          document.getElementById('auth-subtitle').textContent = isLogin ? 'Log in to continue your journey.' : 'Join us to start optimizing your training.';
          document.getElementById('auth-submit').textContent = isLogin ? 'Log In' : 'Sign Up';
          document.getElementById('name-group').style.display = isLogin ? 'none' : 'block';
-         document.getElementById('auth-switch-text').innerHTML = isLogin ? 
+         // Show forgot password link only on login
+         const forgotLink = document.getElementById('forgot-link');
+         if (forgotLink) forgotLink.style.display = isLogin ? 'block' : 'none';
+         // Clear any errors
+         const errEl = document.getElementById('auth-error');
+         if (errEl) errEl.classList.add('hidden');
+         document.getElementById('auth-switch-text').innerHTML = isLogin ?
              'New to Dynamate? <a href="#" onclick="app.toggleAuthMode(); return false;" class="text-primary">Sign Up</a>' :
              'Already have an account? <a href="#" onclick="app.toggleAuthMode(); return false;" class="text-primary">Log In</a>';
     },
 
     handleAuth: () => {
-         const email = document.getElementById('auth-email').value;
-         let name = document.getElementById('auth-name').value;
-         let onboardingComplete = false;
-         let profile = {};
-         
-         if (app.authMode === 'login') {
-             const existingUser = store.getUser();
-             if (existingUser && existingUser.email === email) {
-                 name = existingUser.name || email.split('@')[0];
-                 onboardingComplete = existingUser.onboardingComplete || false;
-                 profile = existingUser.profile || {};
-             } else {
-                 name = email.split('@')[0];
-             }
-         }
-         
-         store.setUser({ email, name, onboardingComplete, profile });
-         app.updateAuthUI();
-         app.showToast(`Welcome, ${name}!`);
-         
-         if (!onboardingComplete) {
-             document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-             document.getElementById('onboarding-view').classList.add('active');
-         } else {
-             document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-             document.getElementById('app-view').classList.add('active');
-             app.navigateAppPage('dashboard');
-         }
+        const email = document.getElementById('auth-email').value.trim();
+        const password = document.getElementById('auth-password').value;
+        const errorEl = document.getElementById('auth-error');
+
+        const showError = (msg) => {
+            errorEl.textContent = msg;
+            errorEl.classList.remove('hidden');
+        };
+        const clearError = () => errorEl.classList.add('hidden');
+        clearError();
+
+        if (app.authMode === 'login') {
+            // ── LOGIN FLOW ──
+            const existingUser = store.getUserByEmail(email);
+            if (!existingUser) {
+                showError("No account found with this email. Please sign up first.");
+                return;
+            }
+            if (existingUser.password !== password) {
+                showError("Incorrect password. Please try again.");
+                return;
+            }
+            // Success
+            localStorage.setItem('dm_current_session', email);
+            app.updateAuthUI();
+            app.showToast(`Welcome back, ${existingUser.name || email.split('@')[0]}!`);
+            if (!existingUser.onboardingComplete) {
+                document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+                document.getElementById('onboarding-view').classList.add('active');
+            } else {
+                document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+                document.getElementById('app-view').classList.add('active');
+                app.navigateAppPage('dashboard');
+            }
+
+        } else {
+            // ── SIGN UP FLOW ──
+            const name = document.getElementById('auth-name').value.trim();
+            if (!name) { showError('Please enter your full name.'); return; }
+            if (password.length < 6) { showError('Password must be at least 6 characters.'); return; }
+
+            if (store.getUserByEmail(email)) {
+                showError('An account with this email already exists. Please log in.');
+                return;
+            }
+
+            const newUser = { email, name, password, onboardingComplete: false, profile: {} };
+            store.setUser(newUser);
+            app.updateAuthUI();
+            app.showToast(`Welcome, ${name}! Let's set up your profile.`);
+            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+            document.getElementById('onboarding-view').classList.add('active');
+        }
     },
 
     logout: () => {
-        localStorage.removeItem('dm_user');
+        localStorage.removeItem('dm_current_session');
         app.updateAuthUI();
         app.showToast('Logged out successfully!');
         app.navigateToLanding();
@@ -2289,6 +2344,99 @@ const app = {
         document.getElementById('w-exercise').value = exercise;
         document.getElementById('w-weight').value = targetWeight;
         app.updateWorkoutTargetDisplay();
+    },
+
+    // ==========================================
+    // PASSWORD & AUTH UTILITIES
+    // ==========================================
+    togglePasswordVisibility: (fieldId) => {
+        const field = document.getElementById(fieldId);
+        const icon = document.getElementById(fieldId + '-eye');
+        if (!field) return;
+        if (field.type === 'password') {
+            field.type = 'text';
+            if (icon) { icon.className = 'fa-solid fa-eye-slash'; }
+        } else {
+            field.type = 'password';
+            if (icon) { icon.className = 'fa-solid fa-eye'; }
+        }
+    },
+
+    // Forgot password state
+    _forgotEmail: null,
+
+    showForgotPassword: () => {
+        // Reset modal state
+        document.getElementById('forgot-step1').classList.remove('hidden');
+        document.getElementById('forgot-step2').classList.add('hidden');
+        document.getElementById('forgot-error').classList.add('hidden');
+        document.getElementById('forgot-email').value = '';
+        const np = document.getElementById('forgot-new-password');
+        const cp = document.getElementById('forgot-confirm-password');
+        if (np) np.value = '';
+        if (cp) cp.value = '';
+        app._forgotEmail = null;
+        document.getElementById('forgot-modal').classList.remove('hidden');
+    },
+
+    closeForgotPasswordModal: (event) => {
+        if (event && event.target !== document.getElementById('forgot-modal')) return;
+        document.getElementById('forgot-modal').classList.add('hidden');
+    },
+
+    verifyForgotEmail: () => {
+        const email = document.getElementById('forgot-email').value.trim();
+        const errorEl = document.getElementById('forgot-error');
+        errorEl.classList.add('hidden');
+
+        if (!email) {
+            errorEl.textContent = 'Please enter your email address.';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+
+        const user = store.getUserByEmail(email);
+        if (!user) {
+            errorEl.textContent = 'No account found with this email address.';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+
+        app._forgotEmail = email;
+        document.getElementById('forgot-step1').classList.add('hidden');
+        document.getElementById('forgot-step2').classList.remove('hidden');
+    },
+
+    resetPassword: () => {
+        const newPass = document.getElementById('forgot-new-password').value;
+        const confirmPass = document.getElementById('forgot-confirm-password').value;
+        const errorEl = document.getElementById('forgot-error');
+        errorEl.classList.add('hidden');
+
+        if (!newPass || newPass.length < 6) {
+            errorEl.textContent = 'Password must be at least 6 characters.';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+        if (newPass !== confirmPass) {
+            errorEl.textContent = 'Passwords do not match. Please try again.';
+            errorEl.classList.remove('hidden');
+            return;
+        }
+
+        // Update user password in store
+        const user = store.getUserByEmail(app._forgotEmail);
+        if (user) {
+            user.password = newPass;
+            store.setUser(user);
+        }
+
+        document.getElementById('forgot-modal').classList.add('hidden');
+        app._forgotEmail = null;
+        app.showToast('Password reset successfully! Please log in.');
+
+        // Switch to login mode
+        if (app.authMode !== 'login') app.toggleAuthMode();
     },
 
     // ==========================================

@@ -205,8 +205,15 @@
                         </div>
                         <div class="form-group">
                             <label>Password</label>
-                            <input type="password" class="form-control" required placeholder="••••••••">
+                            <div class="password-wrapper">
+                                <input type="password" id="auth-password" class="form-control" required placeholder="••••••••">
+                                <button type="button" class="password-toggle" onclick="app.togglePasswordVisibility('auth-password')" tabindex="-1">
+                                    <i class="fa-solid fa-eye" id="auth-password-eye"></i>
+                                </button>
+                            </div>
+                            <a href="#" class="forgot-link" id="forgot-link" onclick="app.showForgotPassword(); return false;">Forgot Password?</a>
                         </div>
+                        <div id="auth-error" class="auth-error hidden"></div>
                         <button type="submit" class="btn btn-primary btn-block mt-4" id="auth-submit">Sign Up</button>
                     </form>
                     
@@ -754,6 +761,60 @@
             </div>
         </div>
     </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgot-modal" class="modal-overlay hidden" onclick="app.closeForgotPasswordModal(event)">
+        <div class="modal-box glass-card">
+            <div class="modal-header">
+                <div>
+                    <h3><i class="fa-solid fa-key text-primary"></i> Reset Password</h3>
+                    <p class="text-muted" style="font-size:0.82rem; margin-top:4px;">We'll verify your email and let you set a new password.</p>
+                </div>
+                <button class="btn-icon" onclick="app.closeForgotPasswordModal()" style="font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="forgot-error" class="auth-error hidden"></div>
+
+                <!-- Step 1: Enter email -->
+                <div id="forgot-step1">
+                    <div class="form-group">
+                        <label for="forgot-email">Your Email Address</label>
+                        <input type="email" id="forgot-email" class="form-control" placeholder="name@example.com">
+                    </div>
+                    <button class="btn btn-primary btn-block mt-3" onclick="app.verifyForgotEmail()">
+                        <i class="fa-solid fa-arrow-right"></i> Continue
+                    </button>
+                </div>
+
+                <!-- Step 2: Set new password -->
+                <div id="forgot-step2" class="hidden">
+                    <p class="text-muted" style="font-size:0.85rem; margin-bottom:1rem;">Enter your new password below.</p>
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="forgot-new-password" class="form-control" placeholder="At least 6 characters">
+                            <button type="button" class="password-toggle" onclick="app.togglePasswordVisibility('forgot-new-password')" tabindex="-1">
+                                <i class="fa-solid fa-eye" id="forgot-new-password-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label>Confirm New Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="forgot-confirm-password" class="form-control" placeholder="Repeat password">
+                            <button type="button" class="password-toggle" onclick="app.togglePasswordVisibility('forgot-confirm-password')" tabindex="-1">
+                                <i class="fa-solid fa-eye" id="forgot-confirm-password-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-block mt-3" onclick="app.resetPassword()">
+                        <i class="fa-solid fa-lock"></i> Reset Password
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
