@@ -2194,3 +2194,58 @@ h4,
     height: 18px;
     margin-right: 10px;
 }
+
+/* ============================
+   GOOGLE ACCOUNT SELECTOR
+============================ */
+.google-account-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.google-account-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: background 0.2s;
+    gap: 12px;
+}
+
+.google-account-item:hover {
+    background: #f7f8f8;
+}
+
+.google-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e53935;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.google-details {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.google-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #3c4043;
+}
+
+.google-email {
+    font-size: 0.8rem;
+    color: #5f6368;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
