@@ -964,6 +964,68 @@ const PROGRAMS = {
 };
 
 // ==========================================
+// COURSES DATA
+// ==========================================
+const COURSES = [
+    {
+        id: 'course_beginner',
+        title: 'Beginner to Strong: 12-Week Transformation',
+        instructor: 'Coach Rahul Sharma',
+        duration: '12 Weeks',
+        modules: 24,
+        price: 999,
+        originalPrice: 1999,
+        level: 'Beginner',
+        icon: 'fa-dumbbell',
+        color: '#ef4444',
+        description: 'A complete beginner-friendly strength program. Go from zero to lifting confidently with structured progressions, form guides, and nutrition coaching.',
+        highlights: ['Full workout plans (Mon–Sat)', 'Form video references', 'Beginner diet guide', 'Lifetime access']
+    },
+    {
+        id: 'course_hypertrophy',
+        title: 'Muscle Hypertrophy Masterclass',
+        instructor: 'Coach Priya Nair',
+        duration: '16 Weeks',
+        modules: 32,
+        price: 1499,
+        originalPrice: 2999,
+        level: 'Intermediate',
+        icon: 'fa-bolt',
+        color: '#f59e0b',
+        description: 'Science-based hypertrophy programming for maximum muscle growth. Covers PPL splits, periodisation, and advanced techniques like drop sets & supersets.',
+        highlights: ['PPL Split + Deload weeks', 'Supplement guide', 'Advanced nutrition tracking', 'Weekly check-in template']
+    },
+    {
+        id: 'course_fat_loss',
+        title: 'Fat Loss Blueprint: Lean & Athletic',
+        instructor: 'Coach Arjun Mehta',
+        duration: '8 Weeks',
+        modules: 16,
+        price: 799,
+        originalPrice: 1599,
+        level: 'All Levels',
+        icon: 'fa-fire',
+        color: '#10b981',
+        description: 'Combine strength training and cardio intelligently to shed fat while preserving hard-earned muscle. Includes TDEE calculation, cardio protocols and flexible dieting.',
+        highlights: ['HIIT + Strength hybrid program', 'Calorie cycling plan', 'Flexible dieting guide', 'Progress tracking sheets']
+    },
+    {
+        id: 'course_competition',
+        title: 'Competition Prep Masterclass',
+        instructor: 'Coach Vikram Singh',
+        duration: '20 Weeks',
+        modules: 40,
+        price: 2499,
+        originalPrice: 4999,
+        level: 'Advanced',
+        icon: 'fa-trophy',
+        color: '#8b5cf6',
+        description: 'Stage-ready physique coaching for bodybuilding, classic physique, and men\'s physique competitors. Peak week protocol, posing practice, and contest day strategy included.',
+        highlights: ['Peak week & water manipulation guide', 'Posing coaching', 'Stage-ready nutrition plan', '1-on-1 Q&A sessions']
+    }
+];
+
+// ==========================================
 // STORE (Local Storage Wrapper)
 // ==========================================
 const store = {
@@ -1278,6 +1340,7 @@ const app = {
         if (pageId === 'goals') app.renderGoals();
         if (pageId === 'body') app.renderBodyHistory();
         if (pageId === 'diet') app.renderDietPlan();
+        if (pageId === 'courses') app.renderCourses();
         if (pageId === 'workout') {
             app.updateWorkoutTargetDisplay();
         }
@@ -1411,13 +1474,23 @@ const app = {
 
     handleOnboardingGoalChange: () => {
         const goal = document.getElementById('ob-goal').value;
+        const bodyFields = document.getElementById('ob-body-fields');
         const compFields = document.getElementById('ob-competition-fields');
-        if (goal === 'competition') {
+
+        if (goal === 'normal') {
+            bodyFields.classList.remove('hidden');
+            compFields.classList.add('hidden');
+            document.getElementById('ob-weight').required = true;
+            document.getElementById('ob-height').required = true;
+            document.getElementById('ob-comp-type').required = false;
+        } else if (goal === 'competition') {
+            bodyFields.classList.remove('hidden');
             compFields.classList.remove('hidden');
             document.getElementById('ob-weight').required = true;
             document.getElementById('ob-height').required = true;
             document.getElementById('ob-comp-type').required = true;
         } else {
+            bodyFields.classList.add('hidden');
             compFields.classList.add('hidden');
             document.getElementById('ob-weight').required = false;
             document.getElementById('ob-height').required = false;
@@ -1428,10 +1501,14 @@ const app = {
     handleOnboarding: () => {
         const goal = document.getElementById('ob-goal').value;
         let profile = { goal };
-        
+
+        // Capture weight & height for BOTH normal and competition
+        const weight = document.getElementById('ob-weight').value;
+        const height = document.getElementById('ob-height').value;
+        if (weight) profile.weight = weight;
+        if (height) profile.height = height;
+
         if (goal === 'competition') {
-            profile.weight = document.getElementById('ob-weight').value;
-            profile.height = document.getElementById('ob-height').value;
             profile.compType = document.getElementById('ob-comp-type').value;
         }
 
@@ -1439,7 +1516,7 @@ const app = {
         user.onboardingComplete = true;
         user.profile = profile;
         store.setUser(user);
-        
+
         // Also update diet preference to match their goal
         localStorage.setItem('dm_diet_pref', goal);
 
@@ -2212,6 +2289,107 @@ const app = {
         document.getElementById('w-exercise').value = exercise;
         document.getElementById('w-weight').value = targetWeight;
         app.updateWorkoutTargetDisplay();
+    },
+
+    // ==========================================
+    // COURSES & UPI PAYMENT
+    // ==========================================
+    renderCourses: () => {
+        const container = document.getElementById('courses-content');
+        let html = `<div class="courses-grid">`;
+
+        COURSES.forEach(course => {
+            const discount = Math.round(((course.originalPrice - course.price) / course.originalPrice) * 100);
+            const isPurchased = localStorage.getItem(`dm_course_${course.id}`) === 'purchased';
+            html += `
+                <div class="course-card glass-card">
+                    <div class="course-card-header" style="--course-color: ${course.color}">
+                        <div class="course-icon-wrap"><i class="fa-solid ${course.icon}"></i></div>
+                        <div class="course-level-badge">${course.level}</div>
+                    </div>
+                    <div class="course-card-body">
+                        <h3 class="course-title">${course.title}</h3>
+                        <div class="course-meta">
+                            <span><i class="fa-solid fa-user-tie"></i> ${course.instructor}</span>
+                            <span><i class="fa-solid fa-clock"></i> ${course.duration}</span>
+                            <span><i class="fa-solid fa-layer-group"></i> ${course.modules} Modules</span>
+                        </div>
+                        <p class="course-desc">${course.description}</p>
+                        <ul class="course-highlights">
+                            ${course.highlights.map(h => `<li><i class="fa-solid fa-check text-primary"></i> ${h}</li>`).join('')}
+                        </ul>
+                        <div class="course-footer">
+                            <div class="course-price-wrap">
+                                <div class="course-price">&#8377;${course.price.toLocaleString('en-IN')}</div>
+                                <div class="course-original-price">&#8377;${course.originalPrice.toLocaleString('en-IN')}</div>
+                                <div class="course-discount-badge">${discount}% OFF</div>
+                            </div>
+                            ${isPurchased
+                                ? `<button class="btn btn-block course-enrolled-btn" disabled><i class="fa-solid fa-check-circle"></i> Enrolled</button>`
+                                : `<button class="btn btn-primary btn-block course-buy-btn" onclick="app.openPaymentModal('${course.id}')"><i class="fa-solid fa-bolt"></i> Enroll Now</button>`
+                            }
+                        </div>
+                    </div>
+                </div>`;
+        });
+
+        html += `</div>`;
+        container.innerHTML = html;
+    },
+
+    // Current course being purchased
+    _activeCourseId: null,
+
+    openPaymentModal: (courseId) => {
+        const course = COURSES.find(c => c.id === courseId);
+        if (!course) return;
+        app._activeCourseId = courseId;
+
+        document.getElementById('modal-course-title').textContent = course.title;
+        document.getElementById('modal-course-sub').textContent = `${course.instructor} · ${course.duration} · ${course.modules} Modules`;
+        document.getElementById('modal-course-price').innerHTML = `&#8377;${course.price.toLocaleString('en-IN')}`;
+        document.getElementById('utr-input').value = '';
+
+        const modal = document.getElementById('payment-modal');
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    },
+
+    closePaymentModal: (event) => {
+        if (event && event.target !== document.getElementById('payment-modal')) return;
+        document.getElementById('payment-modal').classList.add('hidden');
+        document.body.style.overflow = '';
+        app._activeCourseId = null;
+    },
+
+    copyUPIId: () => {
+        const upiId = document.getElementById('upi-id-display').textContent;
+        navigator.clipboard.writeText(upiId).then(() => {
+            app.showToast('UPI ID copied to clipboard!');
+        }).catch(() => {
+            app.showToast('dynamate@upi — copy manually.');
+        });
+    },
+
+    processUPIPayment: () => {
+        const utr = document.getElementById('utr-input').value.trim();
+        if (!utr || utr.length < 8) {
+            app.showToast('Please enter a valid Transaction ID (UTR).', 'danger');
+            return;
+        }
+        if (!app._activeCourseId) return;
+
+        // Mark course as purchased
+        localStorage.setItem(`dm_course_${app._activeCourseId}`, 'purchased');
+
+        document.getElementById('payment-modal').classList.add('hidden');
+        document.body.style.overflow = '';
+
+        app.showToast('Payment confirmed! You are now enrolled. 🎉');
+        app._activeCourseId = null;
+
+        // Re-render courses to reflect enrolled state
+        setTimeout(() => app.renderCourses(), 500);
     },
 
     // Notification UI

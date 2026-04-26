@@ -240,7 +240,8 @@
                             </select>
                         </div>
 
-                        <div id="ob-competition-fields" class="hidden mt-4">
+                        <!-- Body fields: shown for both Normal & Competition -->
+                        <div id="ob-body-fields" class="hidden mt-4">
                             <div class="form-row">
                                 <div class="form-group">
                                     <label>Weight (kg)</label>
@@ -251,6 +252,10 @@
                                     <input type="number" id="ob-height" class="form-control" min="100" step="1" placeholder="e.g. 175">
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Competition-only fields -->
+                        <div id="ob-competition-fields" class="hidden mt-4">
                             <div class="form-group">
                                 <label>Competition Type</label>
                                 <select id="ob-comp-type" class="form-control">
@@ -328,6 +333,10 @@
                     <a href="#" class="nav-item" data-target="diet">
                         <i class="fa-solid fa-utensils"></i>
                         <span>Diet</span>
+                    </a>
+                    <a href="#" class="nav-item" data-target="courses">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span>Courses</span>
                     </a>
                 </nav>
 
@@ -680,9 +689,64 @@
                             <!-- Populated by JS -->
                         </div>
                     </section>
+
+                    <!-- ======================== -->
+                    <!-- COURSES PAGE -->
+                    <!-- ======================== -->
+                    <section id="courses" class="app-page">
+                        <div class="page-header">
+                            <h2>Fitness Courses</h2>
+                            <p class="text-muted">Expert-led programs to transform your training.</p>
+                        </div>
+                        <div id="courses-content">
+                            <!-- Populated by JS -->
+                        </div>
+                    </section>
                 </main>
             </div>
             
+            <!-- UPI Payment Modal -->
+            <div id="payment-modal" class="modal-overlay hidden" onclick="app.closePaymentModal(event)">
+                <div class="modal-box glass-card">
+                    <div class="modal-header">
+                        <div>
+                            <h3 id="modal-course-title">Course Payment</h3>
+                            <p class="text-muted" id="modal-course-sub" style="font-size:0.85rem; margin-top:4px;"></p>
+                        </div>
+                        <button class="btn-icon" onclick="app.closePaymentModal()" style="font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="upi-price-tag">
+                            <span class="text-muted" style="font-size:0.85rem;">Total Amount</span>
+                            <div class="upi-amount" id="modal-course-price">&#8377;999</div>
+                        </div>
+                        <div class="upi-section">
+                            <div class="upi-qr-box">
+                                <div class="upi-qr-icon"><i class="fa-solid fa-qrcode"></i></div>
+                                <p style="font-size:0.78rem; color:var(--text-muted); margin-top:8px;">Scan to pay via any UPI app</p>
+                            </div>
+                            <div class="upi-divider"><span>or pay using UPI ID</span></div>
+                            <div class="upi-id-box">
+                                <i class="fa-brands fa-google-pay" style="font-size:1.3rem; color:var(--primary);"></i>
+                                <span class="upi-id-text" id="upi-id-display">dynamate@upi</span>
+                                <button class="btn-copy" onclick="app.copyUPIId()" title="Copy UPI ID"><i class="fa-solid fa-copy"></i></button>
+                            </div>
+                            <p class="text-muted text-center" style="font-size:0.78rem; margin-top:0.75rem;">After payment, enter your UTR / Transaction ID below to confirm</p>
+                            <div class="form-group mt-3">
+                                <label for="utr-input">Transaction ID (UTR)</label>
+                                <input type="text" id="utr-input" class="form-control" placeholder="e.g. 428123456789012">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary btn-block btn-large" onclick="app.processUPIPayment()">
+                            <i class="fa-solid fa-circle-check"></i> Confirm Payment
+                        </button>
+                        <button class="btn btn-block mt-3" onclick="app.closePaymentModal()" style="color: var(--text-muted); border-color: var(--border);">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Toast Notification -->
             <div id="toast" class="toast hidden">
                 <i class="fa-solid fa-circle-check"></i>
