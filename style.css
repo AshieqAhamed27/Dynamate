@@ -766,9 +766,8 @@ h4,
     background-color: var(--primary);
     color: #000;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.25rem;
+    font-weight: 700;
+    box-shadow: 0 0 10px var(--primary-glow);
 }
 
 .sidebar-profile .user-info h4 {
@@ -778,123 +777,26 @@ h4,
     color: var(--text-main);
 }
 
-/* ============================
-   RESPONSIVE — MOBILE DRAWER
-============================ */
 @media (max-width: 768px) {
-
-    /* Show mobile topbar */
-    .app-header {
-        display: flex !important;
-        position: fixed;
-        top: 0; left: 0; right: 0;
-        height: 56px;
-        padding: 0 1rem;
-        z-index: 997;
-        background: var(--bg-card);
-        border-bottom: 1px solid var(--border);
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    /* Show hamburger */
-    .hamburger-btn { display: flex !important; }
-
-    /* App layout: push content below fixed header */
-    .app-layout {
-        flex-direction: row;
-        height: calc(100vh - 56px);
-        margin-top: 56px;
-        padding-bottom: 0;
-    }
-
-    /* Sidebar: slide-in drawer */
-    .app-nav {
-        position: fixed !important;
-        top: 56px;
-        left: -280px;
-        width: 260px !important;
-        height: calc(100vh - 56px);
-        z-index: 999;
-        border-radius: 0;
-        border-right: 1px solid var(--border);
-        border-top: none;
-        padding: 0.75rem 0;
-        overflow-y: auto;
-        transition: left 0.28s cubic-bezier(0.4,0,0.2,1);
-        background: var(--bg-card);
-        flex-direction: column !important;
-        justify-content: flex-start !important;
-    }
-
-    .app-nav.sidebar-open { left: 0 !important; }
-
-    /* Sidebar logo shows inside drawer */
-    .app-nav .sidebar-logo { display: flex !important; }
-
-    /* Nav items: full-width rows with icon + label */
-    .nav-item {
-        flex-direction: row !important;
-        padding: 0.9rem 1.5rem !important;
-        gap: 1rem;
-        font-size: 0.92rem;
-        border-right: none !important;
-        border-top: none !important;
-        border-left: 3px solid transparent;
-        justify-content: flex-start;
-        border-radius: 0;
-        background: transparent;
-    }
-
-    .nav-item span { display: block !important; }
-
-    .nav-item i { font-size: 1rem; width: 20px; text-align: center; }
-
-    .nav-item.active {
-        background: rgba(239,68,68,0.08) !important;
-        border-left: 3px solid var(--primary) !important;
-        border-top: none !important;
-        border-right: none !important;
-        color: var(--primary);
-    }
-
-    /* Show sidebar profile inside drawer */
     .sidebar-profile {
-        display: flex !important;
-        padding: 0.75rem 1.5rem;
+        display: none !important;
     }
-
-    /* Content fills remaining space */
-    .app-content {
-        flex: 1;
-        width: 100%;
-        padding: 1.25rem 1rem;
-        overflow-y: auto;
-        height: calc(100vh - 56px);
-    }
-
-    /* Overlay backdrop */
-    .sidebar-overlay {
-        display: block !important;
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.55);
-        z-index: 998;
-        backdrop-filter: blur(2px);
-    }
-    .sidebar-overlay.hidden { display: none !important; }
 }
 
-/* Dashboard Grid */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
+.app-content {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+    background-color: var(--bg-main);
 }
 
-.dashboard-card {
-    display: flex;
-    flex-direction: column;
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.page-header h2 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
 }
 
 .dashboard-card h3 {
@@ -2202,4 +2104,47 @@ h4,
     }
     .app-nav .sidebar-logo { display: flex; }
     .app-layout { padding-top: 0; }
+}
+
+/* ============================
+   EXTRA RESPONSIVE REFINEMENTS
+============================ */
+
+@media (max-width: 600px) {
+    /* Ensure modals don't get cut off on short phones */
+    .modal-box {
+        max-height: 95vh;
+        overflow-y: auto;
+    }
+    
+    .upi-section {
+        padding: 0.5rem 0;
+    }
+
+    /* Hero title scaling */
+    .hero-title {
+        font-size: 2.2rem;
+    }
+
+    /* Navbar padding */
+    .navbar {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .dashboard-stats-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .hero-title {
+        font-size: 1.8rem;
+    }
+}
+
+/* Fix for desktop sidebar overflow */
+@media (min-width: 769px) {
+    .app-nav {
+        overflow-y: auto;
+    }
 }
