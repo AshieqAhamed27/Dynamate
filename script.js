@@ -1520,54 +1520,7 @@ const app = {
         }
     },
 
-    handleGoogleLogin: () => {
-        app.showToast('Connecting to Google...', 'primary');
-        setTimeout(() => {
-            document.getElementById('google-modal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }, 800);
-    },
 
-    closeGoogleModal: (event) => {
-        if (event && event.target !== document.getElementById('google-modal')) return;
-        document.getElementById('google-modal').classList.add('hidden');
-        document.body.style.overflow = '';
-    },
-
-    selectGoogleAccount: (email, name) => {
-        document.getElementById('google-modal').classList.add('hidden');
-        document.body.style.overflow = '';
-        
-        app.showToast(`Signing in as ${name}...`, 'primary');
-        
-        setTimeout(() => {
-            // Check if user already exists
-            let user = store.getUserByEmail(email);
-            
-            if (!user) {
-                // Create new mock user from Google data
-                user = {
-                    email: email.toLowerCase(),
-                    name: name,
-                    onboardingComplete: false,
-                    profile: {},
-                    proStatus: 'inactive'
-                };
-            }
-            
-            store.setUser(user);
-            app.updateAuthUI();
-            app.showToast(`Success! Welcome, ${name.split(' ')[0]}.`, 'primary');
-
-            // Handle post-login redirection
-            if (!user.onboardingComplete) {
-                document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-                document.getElementById('onboarding-view').classList.add('active');
-            } else {
-                app.showApp();
-            }
-        }, 1200);
-    },
 
     logout: () => {
         localStorage.removeItem('dm_current_session');

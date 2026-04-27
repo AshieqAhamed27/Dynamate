@@ -217,12 +217,7 @@
                         <button type="submit" class="btn btn-primary btn-block mt-4" id="auth-submit">Sign Up</button>
                     </form>
 
-                    <div class="auth-divider">OR</div>
-                    
-                    <button class="btn btn-google btn-block" onclick="app.handleGoogleLogin()">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Logo.svg" alt="Google">
-                        Continue with Google
-                    </button>
+
                     
                     <div class="text-center mt-4">
                         <p class="text-muted" id="auth-switch-text">Already have an account? <a href="#" onclick="app.toggleAuthMode(); return false;" class="text-primary">Log In</a></p>
@@ -843,48 +838,4 @@
 </body>
 </html>
 
-    <!-- Google Login Modal (Simulated) -->
-    <div id="google-modal" class="modal-overlay hidden" onclick="app.closeGoogleModal(event)">
-        <div class="modal-box glass-card" style="max-width: 400px; padding: 0; border-radius: 12px; overflow: hidden; background: #fff; color: #3c4043;">
-            <div class="modal-header" style="background: #fff; padding: 24px 24px 12px; flex-direction: column; align-items: center; border-bottom: none;">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Logo.svg" alt="Google" style="width: 24px; margin-bottom: 12px;">
-                <h3 style="color: #202124; font-size: 1.5rem; font-family: 'Product Sans', sans-serif;">Choose an account</h3>
-                <p style="color: #5f6368; font-size: 0.95rem; margin-top: 4px;">to continue to <strong>DynaMate</strong></p>
-            </div>
-            <div class="modal-body" style="padding: 12px 0 24px;">
-                <!-- Account List -->
-                <div class="google-account-list">
-                    <div class="google-account-item" onclick="app.selectGoogleAccount('user@gmail.com', 'Ashieq Ahamed')">
-                        <div class="google-avatar">A</div>
-                        <div class="google-details">
-                            <div class="google-name">Ashieq Ahamed</div>
-                            <div class="google-email">user@gmail.com</div>
-                        </div>
-                    </div>
-                    <div class="google-account-item" onclick="app.selectGoogleAccount('fitness.pro@gmail.com', 'Fitness Pro')">
-                        <div class="google-avatar" style="background: #1a73e8;">F</div>
-                        <div class="google-details">
-                            <div class="google-name">Fitness Pro</div>
-                            <div class="google-email">fitness.pro@gmail.com</div>
-                        </div>
-                    </div>
-                    <div class="google-account-item" onclick="app.selectGoogleAccount('guest.user@gmail.com', 'Guest User')">
-                        <div class="google-avatar" style="background: #10b981;">G</div>
-                        <div class="google-details">
-                            <div class="google-name">Guest User</div>
-                            <div class="google-email">guest.user@gmail.com</div>
-                        </div>
-                    </div>
-                    <div class="google-account-item" style="border-top: 1px solid #e8eaed; margin-top: 8px;">
-                        <div class="google-avatar" style="background: transparent; color: #5f6368; border: 1px solid #dadce0;"><i class="fa-solid fa-user-plus"></i></div>
-                        <div class="google-details">
-                            <div class="google-name" style="color: #1a73e8; font-weight: 500;">Use another account</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer" style="padding: 16px 24px; font-size: 0.75rem; color: #5f6368; background: #fff; line-height: 1.4; border-top: none;">
-                To continue, Google will share your name, email address, language preference, and profile picture with DynaMate.
-            </div>
-        </div>
-    </div>
+
