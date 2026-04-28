@@ -1056,11 +1056,152 @@ const PLANS = [
 // STORE (Local Storage Wrapper)
 // ==========================================
 const store = {
-    // Multi-user store
+    // User-scoped data methods
+    _getScopedKey: function(key) {
+        const email = localStorage.getItem('dm_current_session');
+        return email ? `dm_${email.toLowerCase()}_${key}` : null;
+    },
+
+    getWorkouts: function() {
+        const key = this._getScopedKey('workouts');
+        return key ? JSON.parse(localStorage.getItem(key)) || [] : [];
+    },
+    setWorkouts: function(workouts) {
+        const key = this._getScopedKey('workouts');
+        if (key) localStorage.setItem(key, JSON.stringify(workouts));
+    },
+
+    getGoals: function() {
+        const key = this._getScopedKey('goals');
+        return key ? JSON.parse(localStorage.getItem(key)) || [] : [];
+    },
+    setGoals: function(goals) {
+        const key = this._getScopedKey('goals');
+        if (key) localStorage.setItem(key, JSON.stringify(goals));
+    },
+
+    getRecovery: function() {
+        const key = this._getScopedKey('recovery');
+        return key ? JSON.parse(localStorage.getItem(key)) || { sleep: 'Average', soreness: 'Medium' } : { sleep: 'Average', soreness: 'Medium' };
+    },
+    setRecovery: function(recovery) {
+        const key = this._getScopedKey('recovery');
+        if (key) localStorage.setItem(key, JSON.stringify(recovery));
+    },
+
+    getBodyMetrics: function() {
+        const key = this._getScopedKey('body_metrics');
+        return key ? JSON.parse(localStorage.getItem(key)) || [] : [];
+    },
+    setBodyMetrics: function(metrics) {
+        const key = this._getScopedKey('body_metrics');
+        if (key) localStorage.setItem(key, JSON.stringify(metrics));
+    },
+
+    getMeals: function() {
+        const key = this._getScopedKey('meals');
+        return key ? JSON.parse(localStorage.getItem(key)) || [] : [];
+    },
+    setMeals: function(meals) {
+        const key = this._getScopedKey('meals');
+        if (key) localStorage.setItem(key, JSON.stringify(meals));
+    },
+
+    // --- Data Handlers ---
+    saveWorkout: function(workout) {
+        const workouts = this.getWorkouts();
+        workouts.push({ id: Date.now().toString(), date: new Date().toISOString(), ...workout });
+        this.setWorkouts(workouts);
+    },
+    deleteWorkout: function(id) {
+        const workouts = this.getWorkouts().filter(w => w.id !== id);
+        this.setWorkouts(workouts);
+    },
+
+    saveGoal: function(goal) {
+        const goals = this.getGoals();
+        goals.push({ id: Date.now().toString(), ...goal });
+        this.setGoals(goals);
+    },
+    deleteGoal: function(id) {
+        const goals = this.getGoals().filter(g => g.id !== id);
+        this.setGoals(goals);
+    },
+
+    saveRecovery: function(recovery) {
+        this.setRecovery({ ...recovery, date: new Date().toISOString() });
+    },
+
+    saveBodyMetric: function(metric) {
+        const metrics = this.getBodyMetrics();
+        metrics.push({ ...metric, id: Date.now().toString(), date: new Date().toISOString() });
+        this.setBodyMetrics(metrics);
+    },
+
+    saveMeal: function(meal) {
+        const meals = this.getMeals();
+        meals.push({ id: Date.now().toString(), date: new Date().toISOString(), ...meal });
+        this.setMeals(meals);
+    },
+    deleteMeal: function(id) {
+        const meals = this.getMeals().filter(m => m.id !== id);
+        this.setMeals(meals);
+    },
+
+    getTodayMeals: function() {
+        const meals = this.getMeals();
+        const today = new Date().toDateString();
+        return meals.filter(m => new Date(m.date).toDateString() === today);
+    },
+
+    // --- Helpers ---
+    calculateVolume: function(w) {
+        return (parseFloat(w.weight) || 0) * (parseFloat(w.sets) || 0) * (parseFloat(w.reps) || 0);
+    },
+
+    getLastWorkout: function(exercise) {
+        const workouts = this.getWorkouts();
+        if (!exercise) return workouts.length > 0 ? workouts[workouts.length - 1] : null;
+        return workouts.filter(w => w.exercise === exercise).pop() || null;
+    },
+
+    getPersonalBest: function(exercise) {
+        const workouts = this.getWorkouts();
+        const exWorkouts = workouts.filter(w => w.exercise === exercise);
+        if (exWorkouts.length === 0) return 0;
+        return Math.max(...exWorkouts.map(w => parseFloat(w.weight) || 0));
+    },
+
+    getUniqueExercises: function() {
+        const workouts = this.getWorkouts();
+        return [...new Set(workouts.map(w => w.exercise))];
+    },
+
+    getUserStats: function() {
+        const user = this.getUser();
+        const profile = user ? user.profile || {} : {};
+        const metrics = this.getBodyMetrics();
+        const currentWeight = metrics.length > 0 ? parseFloat(metrics[metrics.length - 1].weight) : parseFloat(profile.weight) || 75;
+        const currentHeight = parseFloat(profile.height) || 175;
+        return {
+            weight: currentWeight,
+            height: currentHeight,
+            goal: profile.goal || 'fitness'
+        };
+    },
+
+    getExerciseHistory: function(exercise, limit = 10) {
+        const workouts = this.getWorkouts();
+        const filtered = workouts.filter(w => w.exercise === exercise);
+        return filtered.reverse().slice(0, limit);
+    },
+
+    // Global User List (for Auth)
     getUsers: () => JSON.parse(localStorage.getItem('dm_users')) || [],
     setUsers: (users) => localStorage.setItem('dm_users', JSON.stringify(users)),
 
     getUserByEmail: (email) => {
+        if (!email) return null;
         const users = store.getUsers();
         return users.find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
     },
@@ -1080,114 +1221,9 @@ const store = {
             users.push(user);
         }
         store.setUsers(users);
-        localStorage.setItem('dm_current_session', user.email);
-    },
-    getWorkouts: () => JSON.parse(localStorage.getItem('dm_workouts')) || [],
-    
-    saveWorkout: (workout) => {
-        const workouts = store.getWorkouts();
-        workout.id = Date.now().toString();
-        workout.date = new Date().toISOString();
-        workouts.push(workout);
-        localStorage.setItem('dm_workouts', JSON.stringify(workouts));
-        return workout;
-    },
-
-    getRecovery: () => JSON.parse(localStorage.getItem('dm_recovery')) || { sleep: 'Average', soreness: 'Low' },
-    
-    saveRecovery: (recovery) => {
-        localStorage.setItem('dm_recovery', JSON.stringify(recovery));
-        return recovery;
-    },
-
-    getLastWorkout: (exercise) => {
-        const workouts = store.getWorkouts();
-        if (!exercise) return workouts.length ? workouts[workouts.length - 1] : null;
-        
-        const filtered = workouts.filter(w => w.exercise === exercise);
-        return filtered.length ? filtered[filtered.length - 1] : null;
-    },
-
-    getUniqueExercises: () => {
-        const workouts = store.getWorkouts();
-        return [...new Set(workouts.map(w => w.exercise))];
-    },
-
-    getGoals: () => JSON.parse(localStorage.getItem('dm_goals')) || [],
-    
-    saveGoal: (goal) => {
-        const goals = store.getGoals();
-        goals.push(goal);
-        localStorage.setItem('dm_goals', JSON.stringify(goals));
-    },
-    
-    deleteGoal: (id) => {
-        let goals = store.getGoals();
-        goals = goals.filter(g => g.id !== id);
-        localStorage.setItem('dm_goals', JSON.stringify(goals));
-    },
-
-    getBodyMetrics: () => JSON.parse(localStorage.getItem('dm_body')) || [],
-    
-    saveBodyMetric: (metric) => {
-        const metrics = store.getBodyMetrics();
-        metric.id = Date.now().toString();
-        metric.date = new Date().toISOString();
-        metrics.push(metric);
-        localStorage.setItem('dm_body', JSON.stringify(metrics));
-    },
-
-    // Diet / Meals
-    getMeals: () => JSON.parse(localStorage.getItem('dm_meals')) || [],
-    
-    saveMeal: (meal) => {
-        const meals = store.getMeals();
-        meal.id = Date.now().toString();
-        meal.date = new Date().toISOString();
-        meals.push(meal);
-        localStorage.setItem('dm_meals', JSON.stringify(meals));
-        return meal;
-    },
-
-    deleteMeal: (id) => {
-        let meals = store.getMeals();
-        meals = meals.filter(m => m.id !== id);
-        localStorage.setItem('dm_meals', JSON.stringify(meals));
-    },
-
-    getTodayMeals: () => {
-        const meals = store.getMeals();
-        const today = new Date().toDateString();
-        return meals.filter(m => new Date(m.date).toDateString() === today);
-    },
-
-    // Analytics Helpers
-    getExerciseHistory: (exercise, limit = 5) => {
-        const workouts = store.getWorkouts();
-        return workouts.filter(w => w.exercise === exercise).reverse().slice(0, limit);
-    },
-
-    calculateVolume: (workout) => {
-        return (parseFloat(workout.weight) || 0) * (parseInt(workout.sets) || 0) * (parseInt(workout.reps) || 0);
-    },
-
-    getPersonalBest: (exercise) => {
-        const workouts = store.getWorkouts();
-        const filtered = workouts.filter(w => w.exercise === exercise);
-        if (filtered.length === 0) return 0;
-        return Math.max(...filtered.map(w => parseFloat(w.weight)));
-    },
-
-    getUserStats: () => {
-        const user = store.getUser() || {};
-        const profile = user.profile || {};
-        const metrics = store.getBodyMetrics();
-        const currentWeight = metrics.length > 0 ? parseFloat(metrics[metrics.length - 1].weight) : parseFloat(profile.weight) || 70;
-        const currentHeight = parseFloat(profile.height) || 170;
-        const age = 25; // Default age if not provided
-        const gender = 'male'; // Default
-        
-        return { weight: currentWeight, height: currentHeight, age, gender, goal: profile.goal || 'normal' };
+        if (user.email) {
+            localStorage.setItem('dm_current_session', user.email.toLowerCase());
+        }
     }
 };
 
@@ -1363,10 +1399,11 @@ const app = {
     },
 
     navigateToAuth: (mode = 'signup') => {
-        app.authMode = mode === 'login' ? 'signup' : 'login';
-        app.toggleAuthMode();
+        app.authMode = mode;
+        app.toggleAuthMode(true); // Forced sync
         document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
         document.getElementById('auth-view').classList.add('active');
+        window.scrollTo(0, 0);
     },
 
     navigateToLanding: () => {
@@ -1446,38 +1483,61 @@ const app = {
 
     authMode: 'signup',
     
-    toggleAuthMode: () => {
-         app.authMode = app.authMode === 'signup' ? 'login' : 'signup';
-         const isLogin = app.authMode === 'login';
-         document.getElementById('auth-title').textContent = isLogin ? 'Welcome Back' : 'Create an Account';
-         document.getElementById('auth-subtitle').textContent = isLogin ? 'Log in to continue your journey.' : 'Join us to start optimizing your training.';
-         document.getElementById('auth-submit').textContent = isLogin ? 'Log In' : 'Sign Up';
-         document.getElementById('name-group').style.display = isLogin ? 'none' : 'block';
-         // Show forgot password link only on login
-         const forgotLink = document.getElementById('forgot-link');
-         if (forgotLink) forgotLink.style.display = isLogin ? 'block' : 'none';
-         // Clear any errors
-         const errEl = document.getElementById('auth-error');
-         if (errEl) errEl.classList.add('hidden');
-         document.getElementById('auth-switch-text').innerHTML = isLogin ?
-             'New to Dynamate? <a href="#" onclick="app.toggleAuthMode(); return false;" class="text-primary">Sign Up</a>' :
-             'Already have an account? <a href="#" onclick="app.toggleAuthMode(); return false;" class="text-primary">Log In</a>';
+    toggleAuthMode: (forceSync = false) => {
+        if (!forceSync) {
+            app.authMode = app.authMode === 'signup' ? 'login' : 'signup';
+        }
+        
+        const isLogin = app.authMode === 'login';
+        const authTitle = document.getElementById('auth-title');
+        const authSubmit = document.getElementById('auth-submit');
+        const nameGroup = document.getElementById('name-group');
+        const forgotLink = document.getElementById('forgot-link');
+        const switchText = document.getElementById('auth-switch-text');
+        const errorEl = document.getElementById('auth-error');
+
+        if (authTitle) authTitle.textContent = isLogin ? 'Welcome Back' : 'Create an Account';
+        if (authSubmit) authSubmit.textContent = isLogin ? 'Log In' : 'Sign Up';
+        if (nameGroup) nameGroup.style.display = isLogin ? 'none' : 'block';
+        if (forgotLink) forgotLink.style.display = isLogin ? 'block' : 'none';
+        if (errorEl) errorEl.classList.add('hidden');
+
+        if (switchText) {
+            switchText.innerHTML = isLogin ?
+                'New to Dynamate? <a href="#" onclick="app.toggleAuthMode(); return false;" class="text-primary">Sign Up</a>' :
+                'Already have an account? <a href="#" onclick="app.toggleAuthMode(); return false;" class="text-primary">Log In</a>';
+        }
     },
 
     handleAuth: () => {
-        const email = document.getElementById('auth-email').value.trim();
-        const password = document.getElementById('auth-password').value;
+        const emailInput = document.getElementById('auth-email');
+        const passwordInput = document.getElementById('auth-password');
+        const nameInput = document.getElementById('auth-name');
         const errorEl = document.getElementById('auth-error');
 
+        if (!emailInput || !passwordInput) return;
+
+        const email = emailInput.value.trim().toLowerCase();
+        const password = passwordInput.value;
+        
+        if (errorEl) errorEl.classList.add('hidden');
+
         const showError = (msg) => {
-            errorEl.textContent = msg;
-            errorEl.classList.remove('hidden');
+            if (errorEl) {
+                errorEl.textContent = msg;
+                errorEl.classList.remove('hidden');
+                errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                alert(msg);
+            }
         };
-        const clearError = () => errorEl.classList.add('hidden');
-        clearError();
+
+        if (!email || !password) {
+            showError('Please fill in all required fields.');
+            return;
+        }
 
         if (app.authMode === 'login') {
-            // ── LOGIN FLOW ──
             const existingUser = store.getUserByEmail(email);
             if (!existingUser) {
                 showError("No account found with this email. Please sign up first.");
@@ -1487,10 +1547,12 @@ const app = {
                 showError("Incorrect password. Please try again.");
                 return;
             }
-            // Success
+
+            // Success Login
             localStorage.setItem('dm_current_session', email);
             app.updateAuthUI();
             app.showToast(`Welcome back, ${existingUser.name || email.split('@')[0]}!`);
+
             if (!existingUser.onboardingComplete) {
                 document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
                 document.getElementById('onboarding-view').classList.add('active');
@@ -1499,10 +1561,8 @@ const app = {
                 document.getElementById('app-view').classList.add('active');
                 app.navigateAppPage('dashboard');
             }
-
         } else {
-            // ── SIGN UP FLOW ──
-            const name = document.getElementById('auth-name').value.trim();
+            const name = nameInput ? nameInput.value.trim() : '';
             if (!name) { showError('Please enter your full name.'); return; }
             if (password.length < 6) { showError('Password must be at least 6 characters.'); return; }
 
@@ -1511,16 +1571,27 @@ const app = {
                 return;
             }
 
-            const newUser = { email, name, password, onboardingComplete: false, profile: {} };
+            // Success Signup
+            const newUser = { 
+                email, 
+                name, 
+                password, 
+                onboardingComplete: false, 
+                profile: {},
+                proStatus: 'inactive',
+                createdAt: new Date().toISOString()
+            };
             store.setUser(newUser);
             app.updateAuthUI();
             app.showToast(`Welcome, ${name}! Let's set up your profile.`);
+            
             document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
             document.getElementById('onboarding-view').classList.add('active');
         }
+        
+        // Reset form
+        if (passwordInput) passwordInput.value = '';
     },
-
-
 
     logout: () => {
         localStorage.removeItem('dm_current_session');
@@ -1612,7 +1683,8 @@ const app = {
         store.setUser(user);
 
         // Also update diet preference to match their goal
-        localStorage.setItem('dm_diet_pref', goal);
+        const dietKey = store._getScopedKey('diet_pref');
+        if (dietKey) localStorage.setItem(dietKey, goal);
 
         // If they gave bodyweight, add it to body metrics history
         if (profile.weight && store.getBodyMetrics().length === 0) {
@@ -2158,7 +2230,8 @@ const app = {
         
         // Pre-select based on boarding if not manually changed recently
         if (!typeSelect.dataset.initialized) {
-            const pref = localStorage.getItem('dm_diet_pref');
+            const dietKey = store._getScopedKey('diet_pref');
+            const pref = dietKey ? localStorage.getItem(dietKey) : null;
             if (pref) {
                 typeSelect.value = pref;
             }
@@ -2487,7 +2560,8 @@ const app = {
 
         COURSES.forEach(course => {
             const discount = Math.round(((course.originalPrice - course.price) / course.originalPrice) * 100);
-            const isPurchased = localStorage.getItem(`dm_course_${course.id}`) === 'purchased';
+            const courseKey = store._getScopedKey(`course_${course.id}`);
+            const isPurchased = courseKey ? localStorage.getItem(courseKey) === 'purchased' : false;
             html += `
                 <div class="course-card glass-card">
                     <div class="course-card-header" style="--course-color: ${course.color}">
@@ -2583,7 +2657,8 @@ const app = {
             }
         } else {
             // Mark course as purchased
-            localStorage.setItem(`dm_course_${app._activeCourseId}`, 'purchased');
+            const courseKey = store._getScopedKey(`course_${app._activeCourseId}`);
+            if (courseKey) localStorage.setItem(courseKey, 'purchased');
             app.showToast('Payment confirmed! You are now enrolled. 🎉');
         }
 
