@@ -1137,6 +1137,15 @@ function _getDeviceInfo() {
     };
 }
 
+function _getUpiLaunchUrl(appKey, payment) {
+    const appInfo = UPI_APPS.find(item => item.key === appKey);
+    const device = _getDeviceInfo();
+    if (!appInfo) return payment.uri;
+    if (device.isAndroid) return _getAndroidUpiIntent(appInfo, payment.uri);
+    if (device.isIOS) return _getAppSchemeUpiUri(appInfo, payment.uri);
+    return payment.uri;
+}
+
 // ==========================================
 // STORE (Local Storage Wrapper)
 // ==========================================
@@ -2792,7 +2801,7 @@ const app = {
                             </div>
                             ${isPurchased
                                 ? `<button class="btn btn-block course-enrolled-btn" disabled><i class="fa-solid fa-check-circle"></i> Enrolled</button>`
-                                : `<button class="btn btn-primary btn-block course-buy-btn" onclick="app.startUPIPayment('${course.id}')"><i class="fa-solid fa-bolt"></i> Enroll Now</button>`
+                                : `<a class="btn btn-primary btn-block course-buy-btn" href="${_buildUpiPayment(course).uri}" onclick="app.handlePaymentLinkClick(event, '${course.id}')"><i class="fa-solid fa-bolt"></i> Enroll Now</a>`
                             }
                         </div>
                     </div>
@@ -2828,11 +2837,22 @@ const app = {
         const modal = document.getElementById('payment-modal');
         modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
+        return app._activeUpiPayment;
     },
 
     startUPIPayment: (itemId) => {
         app.openPaymentModal(itemId);
         app.launchUPIPayment('generic');
+    },
+
+    handlePaymentLinkClick: (event, itemId) => {
+        const payment = app.openPaymentModal(itemId);
+        if (!payment) {
+            event.preventDefault();
+            return;
+        }
+        event.currentTarget.href = payment.uri;
+        app.scheduleUPIFallback('Any UPI app');
     },
 
     closePaymentModal: (event) => {
@@ -2852,29 +2872,31 @@ const app = {
         });
     },
 
+    handlePaymentAppClick: (event, appKey = 'generic') => {
+        if (!app._activeUpiPayment) {
+            event.preventDefault();
+            app.showToast('Choose an item before paying.', 'danger');
+            return;
+        }
+        const appInfo = UPI_APPS.find(item => item.key === appKey);
+        const appName = appInfo ? appInfo.name : 'Any UPI app';
+        event.currentTarget.href = _getUpiLaunchUrl(appKey, app._activeUpiPayment);
+        app.scheduleUPIFallback(appName);
+    },
+
     launchUPIPayment: (appKey = 'generic') => {
         if (!app._activeUpiPayment) {
             app.showToast('Choose an item before paying.', 'danger');
             return;
         }
-
         const appInfo = UPI_APPS.find(item => item.key === appKey);
-        const device = _getDeviceInfo();
         const appName = appInfo ? appInfo.name : 'Any UPI app';
-        let targetUrl = app._activeUpiPayment.uri;
+        const targetUrl = _getUpiLaunchUrl(appKey, app._activeUpiPayment);
+        app.scheduleUPIFallback(appName);
+        window.location.href = targetUrl;
+    },
 
-        if (!device.isMobile) {
-            app.showUPILaunchStatus('Open this checkout on your phone. Desktop browsers usually block UPI app redirects.');
-            app.showToast('Open this page on your phone to pay with UPI.', 'warning');
-            return;
-        }
-
-        if (appInfo && device.isAndroid) {
-            targetUrl = _getAndroidUpiIntent(appInfo, app._activeUpiPayment.uri);
-        } else if (appInfo && device.isIOS) {
-            targetUrl = _getAppSchemeUpiUri(appInfo, app._activeUpiPayment.uri);
-        }
-
+    scheduleUPIFallback: (appName) => {
         app.showUPILaunchStatus(`Opening ${appName}. If nothing happens, try Any UPI App or copy the UPI ID.`);
         if (app._upiFallbackTimer) window.clearTimeout(app._upiFallbackTimer);
         app._upiFallbackTimer = window.setTimeout(() => {
@@ -2882,7 +2904,6 @@ const app = {
                 app.showUPILaunchStatus('Payment app did not open? Try Any UPI App, use Chrome/Safari on your phone, or copy the UPI ID.');
             }
         }, 1800);
-        window.location.href = targetUrl;
     },
 
     showUPILaunchStatus: (message) => {
