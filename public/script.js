@@ -1545,6 +1545,16 @@ const app = {
                     body: JSON.stringify({ email, password })
                 });
                 const data = await res.json();
+                if (data.needsSignup) {
+                    app.authMode = 'signup';
+                    app.toggleAuthMode(true);
+                    const msgEl = document.getElementById('auth-redirect-message');
+                    if (msgEl) {
+                        msgEl.textContent = data.message || 'No account found. Create your athlete profile to continue.';
+                        msgEl.classList.remove('hidden');
+                    }
+                    return;
+                }
                 if (!res.ok) {
                     // Auto-redirect to signup if user not found
                     if (data.error && data.error.toLowerCase().includes('not found')) {
