@@ -3007,9 +3007,124 @@ const app = {
     _paymentProofFile: null,
     _paymentProofObjectUrl: null,
 
+    ensurePaymentView: () => {
+        let paymentView = document.getElementById('payment-view');
+        if (paymentView) return paymentView;
+
+        const wrapper = document.createElement('main');
+        wrapper.id = 'payment-view';
+        wrapper.className = 'view';
+        wrapper.innerHTML = `
+            <section class="payment-page section-container">
+                <button class="btn btn-outline payment-back-btn" onclick="app.exitPaymentPage()">
+                    <i class="fa-solid fa-arrow-left"></i> Back
+                </button>
+                <div class="payment-layout">
+                    <div class="glass-card payment-summary-card">
+                        <div class="payment-kicker">Secure UPI Checkout</div>
+                        <div class="payment-title-row">
+                            <div class="payment-plan-icon" id="payment-plan-icon">
+                                <i class="fa-solid fa-crown" id="payment-plan-icon-symbol"></i>
+                            </div>
+                            <div>
+                                <h1 id="payment-title">Premium Monthly</h1>
+                                <p class="text-muted" id="payment-subtitle">Dynamate Premium</p>
+                            </div>
+                        </div>
+                        <div class="payment-price-block">
+                            <span>Total Amount</span>
+                            <strong id="payment-amount">&#8377;100</strong>
+                        </div>
+                        <div class="payment-meta-grid">
+                            <div>
+                                <span>Access</span>
+                                <strong id="payment-duration">1 Month</strong>
+                            </div>
+                            <div>
+                                <span>Type</span>
+                                <strong id="payment-level">Pro</strong>
+                            </div>
+                        </div>
+                        <div class="payment-benefits">
+                            <h3>Included Benefits</h3>
+                            <ul id="payment-benefits-list"></ul>
+                        </div>
+                    </div>
+                    <div class="glass-card payment-action-card">
+                        <div class="payment-step-header">
+                            <span>1</span>
+                            <div>
+                                <h2>Pay With UPI</h2>
+                                <p class="text-muted">Scan the QR or open your payment app from this phone.</p>
+                            </div>
+                        </div>
+                        <div class="payment-qr-shell">
+                            <img id="payment-qr-img" class="payment-qr-img" alt="UPI payment QR code">
+                            <p class="text-muted">UPI QR for this exact payment amount</p>
+                        </div>
+                        <div class="upi-app-grid payment-app-grid">
+                            <a class="upi-app-btn" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'gpay')">
+                                <i class="fa-brands fa-google-pay"></i>
+                                <span>Google Pay</span>
+                            </a>
+                            <a class="upi-app-btn" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'phonepe')">
+                                <i class="fa-solid fa-mobile-screen-button"></i>
+                                <span>PhonePe</span>
+                            </a>
+                            <a class="upi-app-btn" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'paytm')">
+                                <i class="fa-solid fa-wallet"></i>
+                                <span>Paytm</span>
+                            </a>
+                            <a class="upi-app-btn" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'generic')">
+                                <i class="fa-solid fa-qrcode"></i>
+                                <span>Any UPI App</span>
+                            </a>
+                        </div>
+                        <div id="payment-upi-launch-status" class="upi-launch-status hidden"></div>
+                        <div class="upi-id-box payment-upi-id-box">
+                            <i class="fa-brands fa-google-pay" style="font-size:1.3rem; color:var(--primary);"></i>
+                            <span class="upi-id-text" id="payment-upi-id-display">ar0694066-1@okicici</span>
+                            <button class="btn-copy" onclick="app.copyUPIId()" title="Copy UPI ID"><i class="fa-solid fa-copy"></i></button>
+                        </div>
+                        <div class="payment-step-header payment-proof-header">
+                            <span>2</span>
+                            <div>
+                                <h2>Upload Payment Proof</h2>
+                                <p class="text-muted">Add the payment screenshot after the UPI transfer is complete.</p>
+                            </div>
+                        </div>
+                        <label for="payment-proof-input" class="proof-upload-box" id="payment-proof-box">
+                            <input type="file" id="payment-proof-input" accept="image/*" onchange="app.handlePaymentProofUpload(event)" hidden>
+                            <div class="proof-upload-icon"><i class="fa-solid fa-image"></i></div>
+                            <strong id="payment-proof-title">Add payment screenshot</strong>
+                            <span id="payment-proof-help">PNG, JPG, or WebP up to 5 MB</span>
+                            <img id="payment-proof-preview" class="payment-proof-preview hidden" alt="Payment screenshot preview">
+                        </label>
+                        <div class="form-group payment-utr-field">
+                            <label for="payment-utr-input">Transaction ID / UTR (optional)</label>
+                            <input type="text" id="payment-utr-input" class="form-control" placeholder="e.g. 428123456789012">
+                        </div>
+                        <button id="payment-submit-btn" class="btn btn-primary btn-block btn-large" onclick="app.processUPIPayment()" disabled>
+                            <i class="fa-solid fa-circle-check"></i> Submit Payment Proof
+                        </button>
+                    </div>
+                </div>
+            </section>`;
+
+        const appRoot = document.getElementById('app') || document.body;
+        const appView = document.getElementById('app-view');
+        if (appView && appView.parentNode) {
+            appView.parentNode.insertBefore(wrapper, appView);
+        } else {
+            appRoot.appendChild(wrapper);
+        }
+        return wrapper;
+    },
+
     openPaymentPage: (itemId) => {
         const item = _getPaymentItem(itemId);
         if (!item) return;
+        const paymentView = app.ensurePaymentView();
 
         const activeView = document.querySelector('.view.active');
         const activeAppPage = document.querySelector('.app-page.active');
@@ -3022,7 +3137,7 @@ const app = {
 
         app.renderPaymentPage(item, app._activeUpiPayment);
         document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-        document.getElementById('payment-view').classList.add('active');
+        paymentView.classList.add('active');
         window.scrollTo(0, 0);
         return app._activeUpiPayment;
     },
@@ -3280,12 +3395,28 @@ const app = {
 
     // Notification UI
     showToast: (message, type = 'primary') => {
-        const toast = document.getElementById('toast');
-        const msgEl = document.getElementById('toast-message');
+        let toast = document.getElementById('toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'toast';
+            toast.className = 'toast hidden';
+            toast.innerHTML = '<i class="fa-solid fa-circle-check"></i><span id="toast-message">Success!</span>';
+            (document.getElementById('app') || document.body).appendChild(toast);
+        } else if (toast.closest('.view')) {
+            (document.getElementById('app') || document.body).appendChild(toast);
+        }
+
+        let msgEl = document.getElementById('toast-message');
+        if (!msgEl) {
+            msgEl = document.createElement('span');
+            msgEl.id = 'toast-message';
+            toast.appendChild(msgEl);
+        }
+        const icon = toast.querySelector('i');
         msgEl.textContent = message;
         
         toast.style.borderColor = `var(--${type})`;
-        toast.querySelector('i').style.color = `var(--${type})`;
+        if (icon) icon.style.color = `var(--${type})`;
         
         toast.classList.remove('hidden');
         
