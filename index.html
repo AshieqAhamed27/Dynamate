@@ -166,7 +166,7 @@
                             <li><i class="fa-solid fa-check text-primary"></i> Premium strength-sport courses</li>
                             <li><i class="fa-solid fa-check text-primary"></i> Coaching dashboard tools</li>
                         </ul>
-                        <button class="btn btn-primary btn-block" onclick="app.selectPlan('premium_monthly')">Choose Monthly</button>
+                        <button class="btn btn-primary btn-block" onclick="app.openUpiCheckout('premium_monthly')">Choose Monthly</button>
                     </div>
                     <div class="pricing-card glass-card">
                         <div class="pricing-header">
@@ -180,7 +180,7 @@
                             <li><i class="fa-solid fa-check text-primary"></i> Lower annual cost</li>
                             <li><i class="fa-solid fa-check text-primary"></i> Long-term progression view</li>
                         </ul>
-                        <button class="btn btn-block" onclick="app.selectPlan('premium_yearly')">Choose Yearly</button>
+                        <button class="btn btn-block" onclick="app.openUpiCheckout('premium_yearly')">Choose Yearly</button>
                     </div>
                 </div>
             </section>
@@ -725,11 +725,19 @@
                 </main>
             </div>
             
-            <!-- Toast Notification -->
-            <div id="toast" class="toast hidden">
-                <i class="fa-solid fa-circle-check"></i>
-                <span id="toast-message">Success!</span>
-            </div>
+        </div>
+    </div>
+    <div id="toast" class="toast hidden">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toast-message">Success!</span>
+    </div>
+    <div id="upi-modal" class="payment-modal hidden" role="dialog" aria-modal="true" aria-labelledby="upi-modal-title">
+        <button class="payment-modal-backdrop" onclick="app.closeUpiCheckout()" aria-label="Close UPI checkout"></button>
+        <div class="payment-modal-card glass-card">
+            <button class="modal-close" onclick="app.closeUpiCheckout()" aria-label="Close UPI checkout">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="upi-modal-content"></div>
         </div>
     </div>
     <script src="script.js"></script>

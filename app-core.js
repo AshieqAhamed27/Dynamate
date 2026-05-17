@@ -6,6 +6,34 @@ const PRICING = {
     }
 };
 
+const UPI_PAYMENT_CONFIG = {
+    merchantVpa: 'YOUR_UPI_ID@upi',
+    merchantName: 'Dynamate',
+    currency: 'INR',
+    notePrefix: 'Dynamate Premium'
+};
+
+const UPI_PAYMENT_APPS = [
+    {
+        key: 'gpay',
+        name: 'Google Pay',
+        icon: 'fa-brands fa-google-pay',
+        packageName: 'com.google.android.apps.nbu.paisa.user'
+    },
+    {
+        key: 'phonepe',
+        name: 'PhonePe',
+        icon: 'fa-solid fa-mobile-screen-button',
+        packageName: 'com.phonepe.app'
+    },
+    {
+        key: 'paytm',
+        name: 'Paytm',
+        icon: 'fa-solid fa-wallet',
+        packageName: 'net.one97.paytm'
+    }
+];
+
 const TRAINING_LABELS = {
     powerlifting: 'Powerlifting',
     strength_training: 'Strength Training',
@@ -337,6 +365,66 @@ function _getPlanLabel(plan = 'freemium') {
     return labels[plan] || 'Freemium';
 }
 
+function _getPlanAmount(plan = 'freemium') {
+    if (plan === 'premium_yearly') return PRICING.premiumYearly;
+    if (plan === 'premium_monthly') return PRICING.premiumMonthly;
+    return 0;
+}
+
+function _formatRupees(amount) {
+    return `₹${Number(amount || 0).toLocaleString('en-IN')}`;
+}
+
+function _isUpiConfigured() {
+    return Boolean(
+        UPI_PAYMENT_CONFIG.merchantVpa &&
+        !UPI_PAYMENT_CONFIG.merchantVpa.includes('YOUR_UPI_ID') &&
+        /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/.test(UPI_PAYMENT_CONFIG.merchantVpa)
+    );
+}
+
+function _makePaymentReference(plan) {
+    const suffix = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`.toUpperCase();
+    return `DM-${plan === 'premium_yearly' ? 'YR' : 'MO'}-${suffix}`;
+}
+
+function _encodeUpiQuery(fields) {
+    return Object.entries(fields)
+        .filter(([, value]) => value !== undefined && value !== null && value !== '')
+        .map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`)
+        .join('&');
+}
+
+function _buildUpiPayment(plan, existingReference = '') {
+    const amount = _getPlanAmount(plan);
+    const reference = existingReference || _makePaymentReference(plan);
+    const query = _encodeUpiQuery({
+        pa: UPI_PAYMENT_CONFIG.merchantVpa,
+        pn: UPI_PAYMENT_CONFIG.merchantName,
+        tr: reference,
+        tn: `${UPI_PAYMENT_CONFIG.notePrefix} - ${_getPlanLabel(plan)} - ${reference}`,
+        am: amount.toFixed(2),
+        cu: UPI_PAYMENT_CONFIG.currency
+    });
+    const uri = `upi://pay?${query}`;
+
+    return {
+        plan,
+        amount,
+        reference,
+        merchantVpa: UPI_PAYMENT_CONFIG.merchantVpa,
+        merchantName: UPI_PAYMENT_CONFIG.merchantName,
+        uri,
+        status: 'started',
+        createdAt: new Date().toISOString()
+    };
+}
+
+function _getUpiIntentHref(appInfo, upiUri) {
+    const query = upiUri.replace('upi://pay?', '');
+    return `intent://pay?${query}#Intent;scheme=upi;package=${appInfo.packageName};end`;
+}
+
 function _escapeHTML(value) {
     return String(value || '')
         .replace(/&/g, '&amp;')
@@ -379,6 +467,10 @@ const app = {
         }
     },
     selectPlan: (plan) => {
+        if (plan && plan.startsWith('premium')) {
+            app.openUpiCheckout(plan);
+            return;
+        }
         localStorage.setItem('dm_pending_plan', plan);
         const user = store.getUser();
         if (!user) {
@@ -389,6 +481,151 @@ const app = {
         app.updateAuthUI();
         app.showToast(`${_getPlanLabel(plan)} selected.`);
         if (next.onboardingComplete) app.navigateAppPage(plan === 'freemium' ? 'dashboard' : 'courses');
+    },
+    openUpiCheckout: (plan) => {
+        const user = store.getUser();
+        if (!user) {
+            localStorage.setItem('dm_pending_upi_plan', plan);
+            app.navigateToAuth('signup', 'Create your athlete profile before paying with UPI.');
+            return;
+        }
+        localStorage.removeItem('dm_pending_upi_plan');
+
+        const payment = _buildUpiPayment(plan);
+        localStorage.setItem('dm_pending_payment', JSON.stringify(payment));
+        app.renderUpiCheckout(payment);
+
+        const modal = document.getElementById('upi-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.classList.add('modal-open');
+        }
+    },
+    renderUpiCheckout: (payment) => {
+        const content = document.getElementById('upi-modal-content');
+        if (!content) return;
+
+        const isConfigured = _isUpiConfigured();
+        const appButtons = isConfigured
+            ? UPI_PAYMENT_APPS.map(appInfo => `
+                <a class="upi-app-button ${appInfo.key}" href="${_escapeHTML(_getUpiIntentHref(appInfo, payment.uri))}" onclick="app.recordUpiLaunch('${appInfo.name}')" aria-label="Pay with ${appInfo.name}">
+                    <i class="${appInfo.icon}"></i>
+                    <span>${appInfo.name}</span>
+                </a>`).join('')
+            : UPI_PAYMENT_APPS.map(appInfo => `
+                <button class="upi-app-button ${appInfo.key}" disabled aria-label="${appInfo.name} unavailable until UPI ID is configured">
+                    <i class="${appInfo.icon}"></i>
+                    <span>${appInfo.name}</span>
+                </button>`).join('');
+
+        content.innerHTML = `
+            <div class="payment-modal-header">
+                <div class="plan-kicker">UPI only</div>
+                <h2 id="upi-modal-title">Pay for ${_getPlanLabel(payment.plan)}</h2>
+                <p class="text-muted">Use Google Pay, PhonePe, Paytm, or any UPI app on your phone.</p>
+            </div>
+
+            <div class="upi-summary">
+                <div>
+                    <span>Plan</span>
+                    <b>${_getPlanLabel(payment.plan)}</b>
+                </div>
+                <div>
+                    <span>Amount</span>
+                    <b>${_formatRupees(payment.amount)}</b>
+                </div>
+                <div>
+                    <span>Payment Ref</span>
+                    <b>${payment.reference}</b>
+                </div>
+            </div>
+
+            ${isConfigured ? `
+                <div class="upi-app-grid">
+                    ${appButtons}
+                    <a class="upi-app-button generic" href="${_escapeHTML(payment.uri)}" onclick="app.recordUpiLaunch('Any UPI app')" aria-label="Pay with any UPI app">
+                        <i class="fa-solid fa-qrcode"></i>
+                        <span>Any UPI App</span>
+                    </a>
+                </div>
+
+                <div class="upi-copy-row">
+                    <div>
+                        <span class="text-muted">Merchant UPI ID</span>
+                        <b>${_escapeHTML(payment.merchantVpa)}</b>
+                    </div>
+                    <button class="btn" onclick="app.copyUpiId()">Copy</button>
+                </div>
+
+                <div class="form-group mt-4">
+                    <label for="upi-reference-input">UPI transaction ID after payment</label>
+                    <input id="upi-reference-input" class="form-control" placeholder="Enter UPI reference / UTR">
+                    <p class="form-hint">Direct UPI payments need manual verification before Premium is activated.</p>
+                </div>
+                <button class="btn btn-primary btn-block" onclick="app.submitUpiReference()">Submit for Verification</button>
+            ` : `
+                <div class="upi-warning">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <div>
+                        <b>Merchant UPI ID is not configured.</b>
+                        <p>Add your real merchant UPI ID before taking live payments.</p>
+                    </div>
+                </div>
+                <div class="upi-app-grid disabled">
+                    ${appButtons}
+                </div>
+            `}
+        `;
+    },
+    closeUpiCheckout: () => {
+        const modal = document.getElementById('upi-modal');
+        if (modal) modal.classList.add('hidden');
+        document.body.classList.remove('modal-open');
+    },
+    recordUpiLaunch: (appName) => {
+        const payment = JSON.parse(localStorage.getItem('dm_pending_payment')) || {};
+        localStorage.setItem('dm_pending_payment', JSON.stringify({
+            ...payment,
+            openedWith: appName,
+            status: 'opened_upi_app',
+            openedAt: new Date().toISOString()
+        }));
+        app.showToast(`Opening ${appName}...`);
+    },
+    copyUpiId: async () => {
+        if (!_isUpiConfigured()) {
+            app.showToast('Set your merchant UPI ID first.', 'warning');
+            return;
+        }
+        try {
+            await navigator.clipboard.writeText(UPI_PAYMENT_CONFIG.merchantVpa);
+            app.showToast('UPI ID copied.');
+        } catch (error) {
+            app.showToast('Copy failed. Select the UPI ID manually.', 'warning');
+        }
+    },
+    submitUpiReference: () => {
+        const input = document.getElementById('upi-reference-input');
+        const upiReference = input ? input.value.trim() : '';
+        if (upiReference.length < 6) {
+            app.showToast('Enter a valid UPI transaction ID.', 'warning');
+            return;
+        }
+
+        const payment = JSON.parse(localStorage.getItem('dm_pending_payment')) || {};
+        const submittedPayment = {
+            ...payment,
+            upiReference,
+            status: 'pending_verification',
+            submittedAt: new Date().toISOString()
+        };
+        localStorage.setItem('dm_last_upi_payment', JSON.stringify(submittedPayment));
+        localStorage.removeItem('dm_pending_payment');
+        store.updateUser({ pendingPayment: submittedPayment });
+        app.closeUpiCheckout();
+        app.updateAuthUI();
+        app.renderSettings();
+        app.showToast('UPI payment reference saved for verification.');
     },
     navigateToApp: () => {
         const user = store.getUser();
@@ -492,7 +729,8 @@ const app = {
             document.getElementById('auth-email').value = email;
             return;
         }
-        const pendingPlan = localStorage.getItem('dm_pending_plan') || 'freemium';
+        const pendingUpiPlan = localStorage.getItem('dm_pending_upi_plan');
+        const pendingPlan = pendingUpiPlan ? 'freemium' : (localStorage.getItem('dm_pending_plan') || 'freemium');
         const user = { email, name, plan: pendingPlan, onboardingComplete: false, profile: {} };
         store.saveAccount({ ...user, password });
         store.setUser(user);
@@ -574,6 +812,11 @@ const app = {
         app.showToast('Athlete profile created.');
         app.updateAuthUI();
         app.navigateToApp();
+        const pendingUpiPlan = localStorage.getItem('dm_pending_upi_plan');
+        if (pendingUpiPlan) {
+            localStorage.removeItem('dm_pending_upi_plan');
+            setTimeout(() => app.openUpiCheckout(pendingUpiPlan), 0);
+        }
     },
     saveWorkout: () => {
         const exercise = document.getElementById('w-exercise').value;
@@ -846,6 +1089,7 @@ const app = {
         const user = store.getUser() || {};
         const profile = store.getProfile();
         const currentTargets = Object.entries(profile.targetLifts || {}).filter(([, target]) => target > 0);
+        const pendingPayment = user.pendingPayment && user.pendingPayment.status === 'pending_verification' ? user.pendingPayment : null;
         container.innerHTML = `
             <div class="dashboard-grid">
                 <div class="glass-card dashboard-card">
@@ -862,9 +1106,16 @@ const app = {
                     <h3><i class="fa-solid fa-credit-card"></i> Subscription</h3>
                     <p class="text-muted">Current plan</p>
                     <div class="badge primary mt-2" style="width: fit-content;">${_getPlanLabel(user.plan || 'freemium')}</div>
+                    ${pendingPayment ? `
+                        <div class="payment-status mt-4">
+                            <span class="plan-kicker">Pending UPI Verification</span>
+                            <b>${_getPlanLabel(pendingPayment.plan)} - ${_formatRupees(pendingPayment.amount)}</b>
+                            <p class="text-muted">Ref: ${_escapeHTML(pendingPayment.reference)} / UTR: ${_escapeHTML(pendingPayment.upiReference)}</p>
+                        </div>
+                    ` : ''}
                     <div class="settings-actions mt-4">
-                        <button class="btn btn-primary" onclick="app.selectPlan('premium_monthly')">Premium Monthly</button>
-                        <button class="btn" onclick="app.selectPlan('premium_yearly')">Premium Yearly</button>
+                        <button class="btn btn-primary" onclick="app.openUpiCheckout('premium_monthly')">Premium Monthly</button>
+                        <button class="btn" onclick="app.openUpiCheckout('premium_yearly')">Premium Yearly</button>
                         <button class="btn" onclick="app.selectPlan('freemium')">Freemium</button>
                     </div>
                 </div>

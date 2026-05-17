@@ -227,6 +227,12 @@ h4,
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
 }
 
+.form-hint {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+}
+
 /* ============================
    APP VIEW MANAGER
 ============================ */
@@ -1560,6 +1566,176 @@ h4,
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
+.modal-open {
+    overflow: hidden;
+}
+
+.payment-modal {
+    align-items: center;
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    padding: 1.5rem;
+    position: fixed;
+    z-index: 1200;
+}
+
+.payment-modal-backdrop {
+    background: rgba(0, 0, 0, 0.78);
+    border: 0;
+    cursor: pointer;
+    inset: 0;
+    position: absolute;
+}
+
+.payment-modal-card {
+    max-height: min(720px, 92vh);
+    max-width: 560px;
+    overflow-y: auto;
+    padding: 2rem;
+    position: relative;
+    width: 100%;
+    z-index: 1;
+}
+
+.modal-close {
+    align-items: center;
+    background: var(--bg-main);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: inline-flex;
+    height: 36px;
+    justify-content: center;
+    position: absolute;
+    right: 1rem;
+    top: 1rem;
+    transition: var(--transition);
+    width: 36px;
+}
+
+.modal-close:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.payment-modal-header {
+    padding-right: 2.5rem;
+}
+
+.payment-modal-header h2 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.upi-summary {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 1.5rem 0;
+    padding: 1rem;
+}
+
+.upi-summary span,
+.payment-status span {
+    color: var(--text-muted);
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+}
+
+.upi-summary b {
+    font-size: 0.95rem;
+}
+
+.upi-app-grid {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(2, 1fr);
+    margin-bottom: 1rem;
+}
+
+.upi-app-button {
+    align-items: center;
+    background: var(--bg-card-hover);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    gap: 0.75rem;
+    min-height: 56px;
+    padding: 0.85rem 1rem;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.upi-app-button:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-1px);
+}
+
+.upi-app-button i {
+    font-size: 1.2rem;
+    width: 24px;
+}
+
+.upi-app-button[disabled] {
+    color: var(--text-muted);
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.upi-app-button[disabled]:hover {
+    border-color: var(--border);
+    color: var(--text-muted);
+    transform: none;
+}
+
+.upi-app-button.generic {
+    grid-column: 1 / -1;
+}
+
+.upi-copy-row,
+.payment-status,
+.upi-warning {
+    background: var(--bg-card-hover);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+}
+
+.upi-copy-row {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+}
+
+.upi-warning {
+    align-items: flex-start;
+    display: flex;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.upi-warning i {
+    color: var(--warning);
+    font-size: 1.25rem;
+    margin-top: 0.25rem;
+}
+
+.payment-status {
+    border-left: 3px solid var(--warning);
+}
+
 @media (max-width: 768px) {
     .athlete-command,
     .result-actions {
@@ -1573,5 +1749,25 @@ h4,
 
     .athlete-command-grid {
         grid-template-columns: 1fr;
+    }
+
+    .payment-modal {
+        align-items: flex-end;
+        padding: 0.75rem;
+    }
+
+    .payment-modal-card {
+        max-height: 90vh;
+        padding: 1.5rem;
+    }
+
+    .upi-summary,
+    .upi-app-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .upi-copy-row {
+        align-items: stretch;
+        flex-direction: column;
     }
 }
