@@ -176,7 +176,7 @@
                             <li><i class="fa-solid fa-check text-primary"></i> Premium Courses Access</li>
                             <li><i class="fa-solid fa-check text-primary"></i> Priority Support</li>
                         </ul>
-                        <a class="btn btn-primary btn-block" href="upi://pay?pa=ar0694066-1@okicici&amp;pn=Dynamate&amp;tn=Dynamate%20Premium%20Monthly&amp;am=100.00&amp;cu=INR" onclick="app.handlePaymentLinkClick(event, 'plan_monthly')">Pay Monthly</a>
+                        <a class="btn btn-primary btn-block" href="upi://pay?pa=ar0694066-1@okicici&amp;pn=Dynamate&amp;tn=Dynamate%20Premium%20Monthly&amp;am=100.00&amp;cu=INR" onclick="return app.handlePaymentLinkClick(event, 'plan_monthly')">Pay Monthly</a>
                     </div>
 
                     <!-- Premium Yearly -->
@@ -193,7 +193,7 @@
                             <li><i class="fa-solid fa-check text-primary"></i> Early Feature Access</li>
                             <li><i class="fa-solid fa-check text-primary"></i> Competition Season Planning</li>
                         </ul>
-                        <a class="btn btn-block" href="upi://pay?pa=ar0694066-1@okicici&amp;pn=Dynamate&amp;tn=Dynamate%20Premium%20Yearly&amp;am=899.00&amp;cu=INR" onclick="app.handlePaymentLinkClick(event, 'plan_yearly')" style="border: 1px solid var(--primary); color: var(--primary);">Pay Yearly</a>
+                        <a class="btn btn-block" href="upi://pay?pa=ar0694066-1@okicici&amp;pn=Dynamate&amp;tn=Dynamate%20Premium%20Yearly&amp;am=899.00&amp;cu=INR" onclick="return app.handlePaymentLinkClick(event, 'plan_yearly')" style="border: 1px solid var(--primary); color: var(--primary);">Pay Yearly</a>
                     </div>
                 </div>
             </section>
@@ -840,19 +840,19 @@
                                 <p style="font-size:0.78rem; color:var(--text-muted); margin-top:8px;">Pay from your phone using a UPI app</p>
                             </div>
                             <div class="upi-app-grid">
-                                <a class="upi-app-btn" href="upi://pay" onclick="app.handlePaymentAppClick(event, 'gpay')">
+                                <a class="upi-app-btn" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'gpay')">
                                     <i class="fa-brands fa-google-pay"></i>
                                     <span>Google Pay</span>
                                 </a>
-                                <a class="upi-app-btn" href="upi://pay" onclick="app.handlePaymentAppClick(event, 'phonepe')">
+                                <a class="upi-app-btn" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'phonepe')">
                                     <i class="fa-solid fa-mobile-screen-button"></i>
                                     <span>PhonePe</span>
                                 </a>
-                                <a class="upi-app-btn" href="upi://pay" onclick="app.handlePaymentAppClick(event, 'paytm')">
+                                <a class="upi-app-btn" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'paytm')">
                                     <i class="fa-solid fa-wallet"></i>
                                     <span>Paytm</span>
                                 </a>
-                                <a class="upi-app-btn" href="upi://pay" onclick="app.handlePaymentAppClick(event, 'generic')">
+                                <a class="upi-app-btn" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'generic')">
                                     <i class="fa-solid fa-qrcode"></i>
                                     <span>Any UPI App</span>
                                 </a>

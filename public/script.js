@@ -2801,7 +2801,7 @@ const app = {
                             </div>
                             ${isPurchased
                                 ? `<button class="btn btn-block course-enrolled-btn" disabled><i class="fa-solid fa-check-circle"></i> Enrolled</button>`
-                                : `<a class="btn btn-primary btn-block course-buy-btn" href="${_buildUpiPayment(course).uri}" onclick="app.handlePaymentLinkClick(event, '${course.id}')"><i class="fa-solid fa-bolt"></i> Enroll Now</a>`
+                                : `<a class="btn btn-primary btn-block course-buy-btn" href="${_buildUpiPayment(course).uri}" onclick="return app.handlePaymentLinkClick(event, '${course.id}')"><i class="fa-solid fa-bolt"></i> Enroll Now</a>`
                             }
                         </div>
                     </div>
@@ -2846,13 +2846,12 @@ const app = {
     },
 
     handlePaymentLinkClick: (event, itemId) => {
+        event.preventDefault();
         const payment = app.openPaymentModal(itemId);
         if (!payment) {
-            event.preventDefault();
-            return;
+            return false;
         }
-        event.currentTarget.href = payment.uri;
-        app.scheduleUPIFallback('Any UPI app');
+        return app.redirectToUPI(payment.uri, 'Any UPI app');
     },
 
     closePaymentModal: (event) => {
@@ -2873,15 +2872,15 @@ const app = {
     },
 
     handlePaymentAppClick: (event, appKey = 'generic') => {
+        event.preventDefault();
         if (!app._activeUpiPayment) {
-            event.preventDefault();
             app.showToast('Choose an item before paying.', 'danger');
-            return;
+            return false;
         }
         const appInfo = UPI_APPS.find(item => item.key === appKey);
         const appName = appInfo ? appInfo.name : 'Any UPI app';
-        event.currentTarget.href = _getUpiLaunchUrl(appKey, app._activeUpiPayment);
-        app.scheduleUPIFallback(appName);
+        const targetUrl = _getUpiLaunchUrl(appKey, app._activeUpiPayment);
+        return app.redirectToUPI(targetUrl, appName);
     },
 
     launchUPIPayment: (appKey = 'generic') => {
@@ -2892,8 +2891,17 @@ const app = {
         const appInfo = UPI_APPS.find(item => item.key === appKey);
         const appName = appInfo ? appInfo.name : 'Any UPI app';
         const targetUrl = _getUpiLaunchUrl(appKey, app._activeUpiPayment);
+        return app.redirectToUPI(targetUrl, appName);
+    },
+
+    redirectToUPI: (targetUrl, appName) => {
         app.scheduleUPIFallback(appName);
-        window.location.href = targetUrl;
+        try {
+            window.location.assign(targetUrl);
+        } catch (error) {
+            window.location.href = targetUrl;
+        }
+        return false;
     },
 
     scheduleUPIFallback: (appName) => {
