@@ -1044,7 +1044,7 @@ const PLANS = [
         instructor: 'Dynamate Premium',
         duration: '1 Year',
         modules: 'All Features',
-        price: 999,
+        price: 899,
         originalPrice: 1200,
         level: 'Pro',
         icon: 'fa-calendar-check',
@@ -2843,7 +2843,7 @@ const app = {
         navigator.clipboard.writeText(upiId).then(() => {
             app.showToast('UPI ID copied to clipboard!');
         }).catch(() => {
-            app.showToast('dynamate@upi — copy manually.');
+            app.showToast(`${UPI_CONFIG.vpa} - copy manually.`);
         });
     },
 
