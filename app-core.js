@@ -7,7 +7,7 @@ const PRICING = {
 };
 
 const UPI_PAYMENT_CONFIG = {
-    merchantVpa: 'YOUR_UPI_ID@upi',
+    merchantVpa: 'ar0694066-1@okicici',
     merchantName: 'Dynamate',
     currency: 'INR',
     notePrefix: 'Dynamate Premium'
