@@ -383,6 +383,122 @@
         </main>
 
         <!-- ======================== -->
+        <!-- PAYMENT PAGE VIEW -->
+        <!-- ======================== -->
+        <main id="payment-view" class="view">
+            <section class="payment-page section-container">
+                <button class="btn btn-outline payment-back-btn" onclick="app.exitPaymentPage()">
+                    <i class="fa-solid fa-arrow-left"></i> Back
+                </button>
+
+                <div class="payment-layout">
+                    <div class="glass-card payment-summary-card">
+                        <div class="payment-kicker">Secure UPI Checkout</div>
+                        <div class="payment-title-row">
+                            <div class="payment-plan-icon" id="payment-plan-icon">
+                                <i class="fa-solid fa-crown" id="payment-plan-icon-symbol"></i>
+                            </div>
+                            <div>
+                                <h1 id="payment-title">Premium Monthly</h1>
+                                <p class="text-muted" id="payment-subtitle">Dynamate Premium</p>
+                            </div>
+                        </div>
+
+                        <div class="payment-price-block">
+                            <span>Total Amount</span>
+                            <strong id="payment-amount">&#8377;100</strong>
+                        </div>
+
+                        <div class="payment-meta-grid">
+                            <div>
+                                <span>Access</span>
+                                <strong id="payment-duration">1 Month</strong>
+                            </div>
+                            <div>
+                                <span>Type</span>
+                                <strong id="payment-level">Pro</strong>
+                            </div>
+                        </div>
+
+                        <div class="payment-benefits">
+                            <h3>Included Benefits</h3>
+                            <ul id="payment-benefits-list">
+                                <li><i class="fa-solid fa-check text-primary"></i> Advanced analytics</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="glass-card payment-action-card">
+                        <div class="payment-step-header">
+                            <span>1</span>
+                            <div>
+                                <h2>Pay With UPI</h2>
+                                <p class="text-muted">Scan the QR or open your payment app from this phone.</p>
+                            </div>
+                        </div>
+
+                        <div class="payment-qr-shell">
+                            <img id="payment-qr-img" class="payment-qr-img" alt="UPI payment QR code">
+                            <p class="text-muted">UPI QR for this exact payment amount</p>
+                        </div>
+
+                        <div class="upi-app-grid payment-app-grid">
+                            <a class="upi-app-btn" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'gpay')">
+                                <i class="fa-brands fa-google-pay"></i>
+                                <span>Google Pay</span>
+                            </a>
+                            <a class="upi-app-btn" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'phonepe')">
+                                <i class="fa-solid fa-mobile-screen-button"></i>
+                                <span>PhonePe</span>
+                            </a>
+                            <a class="upi-app-btn" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'paytm')">
+                                <i class="fa-solid fa-wallet"></i>
+                                <span>Paytm</span>
+                            </a>
+                            <a class="upi-app-btn" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'generic')">
+                                <i class="fa-solid fa-qrcode"></i>
+                                <span>Any UPI App</span>
+                            </a>
+                        </div>
+
+                        <div id="payment-upi-launch-status" class="upi-launch-status hidden"></div>
+
+                        <div class="upi-id-box payment-upi-id-box">
+                            <i class="fa-brands fa-google-pay" style="font-size:1.3rem; color:var(--primary);"></i>
+                            <span class="upi-id-text" id="payment-upi-id-display">ar0694066-1@okicici</span>
+                            <button class="btn-copy" onclick="app.copyUPIId()" title="Copy UPI ID"><i class="fa-solid fa-copy"></i></button>
+                        </div>
+
+                        <div class="payment-step-header payment-proof-header">
+                            <span>2</span>
+                            <div>
+                                <h2>Upload Payment Proof</h2>
+                                <p class="text-muted">Add the payment screenshot after the UPI transfer is complete.</p>
+                            </div>
+                        </div>
+
+                        <label for="payment-proof-input" class="proof-upload-box" id="payment-proof-box">
+                            <input type="file" id="payment-proof-input" accept="image/*" onchange="app.handlePaymentProofUpload(event)" hidden>
+                            <div class="proof-upload-icon"><i class="fa-solid fa-image"></i></div>
+                            <strong id="payment-proof-title">Add payment screenshot</strong>
+                            <span id="payment-proof-help">PNG, JPG, or WebP up to 5 MB</span>
+                            <img id="payment-proof-preview" class="payment-proof-preview hidden" alt="Payment screenshot preview">
+                        </label>
+
+                        <div class="form-group payment-utr-field">
+                            <label for="payment-utr-input">Transaction ID / UTR (optional)</label>
+                            <input type="text" id="payment-utr-input" class="form-control" placeholder="e.g. 428123456789012">
+                        </div>
+
+                        <button id="payment-submit-btn" class="btn btn-primary btn-block btn-large" onclick="app.processUPIPayment()" disabled>
+                            <i class="fa-solid fa-circle-check"></i> Submit Payment Proof
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- ======================== -->
         <!-- CORE WEB APP VIEW -->
         <!-- ======================== -->
         <div id="app-view" class="view">
@@ -818,73 +934,12 @@
                     </section>
                 </main>
             </div>
-            
-            <!-- UPI Payment Modal -->
-            <div id="payment-modal" class="modal-overlay hidden" onclick="app.closePaymentModal(event)">
-                <div class="modal-box glass-card">
-                    <div class="modal-header">
-                        <div>
-                            <h3 id="modal-course-title">Course Payment</h3>
-                            <p class="text-muted" id="modal-course-sub" style="font-size:0.85rem; margin-top:4px;"></p>
-                        </div>
-                        <button class="btn-icon" onclick="app.closePaymentModal()" style="font-size:1.2rem;"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="upi-price-tag">
-                            <span class="text-muted" style="font-size:0.85rem;">Total Amount</span>
-                            <div class="upi-amount" id="modal-course-price">&#8377;899</div>
-                        </div>
-                        <div class="upi-section">
-                            <div class="upi-qr-box">
-                                <div class="upi-qr-icon"><i class="fa-solid fa-qrcode"></i></div>
-                                <p style="font-size:0.78rem; color:var(--text-muted); margin-top:8px;">Pay from your phone using a UPI app</p>
-                            </div>
-                            <div class="upi-app-grid">
-                                <a class="upi-app-btn" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'gpay')">
-                                    <i class="fa-brands fa-google-pay"></i>
-                                    <span>Google Pay</span>
-                                </a>
-                                <a class="upi-app-btn" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'phonepe')">
-                                    <i class="fa-solid fa-mobile-screen-button"></i>
-                                    <span>PhonePe</span>
-                                </a>
-                                <a class="upi-app-btn" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'paytm')">
-                                    <i class="fa-solid fa-wallet"></i>
-                                    <span>Paytm</span>
-                                </a>
-                                <a class="upi-app-btn" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'generic')">
-                                    <i class="fa-solid fa-qrcode"></i>
-                                    <span>Any UPI App</span>
-                                </a>
-                            </div>
-                            <div id="upi-launch-status" class="upi-launch-status hidden"></div>
-                            <div class="upi-divider"><span>or pay using UPI ID</span></div>
-                            <div class="upi-id-box">
-                                <i class="fa-brands fa-google-pay" style="font-size:1.3rem; color:var(--primary);"></i>
-                                <span class="upi-id-text" id="upi-id-display">ar0694066-1@okicici</span>
-                                <button class="btn-copy" onclick="app.copyUPIId()" title="Copy UPI ID"><i class="fa-solid fa-copy"></i></button>
-                            </div>
-                            <p class="text-muted text-center" style="font-size:0.78rem; margin-top:0.75rem;">After payment, enter your UTR / Transaction ID below to confirm</p>
-                            <div class="form-group mt-3">
-                                <label for="utr-input">Transaction ID (UTR)</label>
-                                <input type="text" id="utr-input" class="form-control" placeholder="e.g. 428123456789012">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-primary btn-block btn-large" onclick="app.processUPIPayment()">
-                            <i class="fa-solid fa-circle-check"></i> Confirm Payment
-                        </button>
-                        <button class="btn btn-outline btn-block mt-3" onclick="app.closePaymentModal()">Cancel Payment</button>
-                    </div>
-                </div>
-            </div>
+        </div>
 
-            <!-- Toast Notification -->
-            <div id="toast" class="toast hidden">
-                <i class="fa-solid fa-circle-check"></i>
-                <span id="toast-message">Success!</span>
-            </div>
+        <!-- Toast Notification -->
+        <div id="toast" class="toast hidden">
+            <i class="fa-solid fa-circle-check"></i>
+            <span id="toast-message">Success!</span>
         </div>
     </div>
 

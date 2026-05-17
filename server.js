@@ -3,6 +3,7 @@ const path = require('path');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const QRCode = require('qrcode');
 const db = require('./database');
 
 const app = express();
@@ -13,6 +14,29 @@ const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-dynamate-key';
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/api/upi-qr', async (req, res) => {
+    const data = typeof req.query.data === 'string' ? req.query.data : '';
+    if (!data.startsWith('upi://pay?') || data.length > 700) {
+        return res.status(400).json({ error: 'Invalid UPI QR data' });
+    }
+
+    try {
+        const svg = await QRCode.toString(data, {
+            type: 'svg',
+            margin: 1,
+            errorCorrectionLevel: 'M',
+            color: {
+                dark: '#000000',
+                light: '#ffffff'
+            }
+        });
+        res.setHeader('Cache-Control', 'no-store');
+        res.type('image/svg+xml').send(svg);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to generate QR code' });
+    }
+});
 
 // JWT Middleware
 const authenticateToken = (req, res, next) => {

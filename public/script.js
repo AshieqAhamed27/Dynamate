@@ -1036,7 +1036,16 @@ const PLANS = [
         originalPrice: 100,
         level: 'Pro',
         icon: 'fa-calendar-day',
-        color: '#ef4444'
+        color: '#ef4444',
+        benefits: [
+            'Everything in Free',
+            'Advanced analytics',
+            'AI-assisted recommendations',
+            'Science-based programming',
+            'Deload management',
+            'Premium courses access',
+            'Priority support'
+        ]
     },
     {
         id: 'plan_yearly',
@@ -1048,7 +1057,14 @@ const PLANS = [
         originalPrice: 1200,
         level: 'Pro',
         icon: 'fa-calendar-check',
-        color: '#ef4444'
+        color: '#ef4444',
+        benefits: [
+            'Everything in Premium',
+            'Annual progress reports',
+            'Early feature access',
+            'Competition season planning',
+            'Best yearly value at Rs. 899'
+        ]
     }
 ];
 
@@ -1144,6 +1160,26 @@ function _getUpiLaunchUrl(appKey, payment) {
     if (device.isAndroid) return _getAndroidUpiIntent(appInfo, payment.uri);
     if (device.isIOS) return _getAppSchemeUpiUri(appInfo, payment.uri);
     return payment.uri;
+}
+
+function _getPaymentItem(itemId) {
+    return COURSES.find(c => c.id === itemId) || PLANS.find(p => p.id === itemId);
+}
+
+function _getPaymentBenefits(item) {
+    if (Array.isArray(item.benefits)) return item.benefits;
+    if (Array.isArray(item.highlights)) return item.highlights;
+    return ['UPI payment access', 'Screenshot proof submission', 'Dynamate athlete support'];
+}
+
+function _buildQrCodeUrl(data) {
+    return `/api/upi-qr?data=${encodeURIComponent(data)}`;
+}
+
+function _formatFileSize(bytes) {
+    if (!bytes) return '0 KB';
+    if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 // ==========================================
@@ -1668,6 +1704,7 @@ const app = {
                 localStorage.setItem('dm_token', data.token);
                 localStorage.setItem('dm_current_session', email);
                 store.setUser({ ...data.user, onboardingComplete: !!data.user.goal });
+                app.applyPendingPayment();
                 
                 app.updateAuthUI();
                 app.showToast(`Welcome back, ${data.user.name || email.split('@')[0]}!`);
@@ -1697,7 +1734,8 @@ const app = {
                 localStorage.setItem('dm_token', data.token);
                 localStorage.setItem('dm_current_session', email);
                 store.setUser({ ...data.user, onboardingComplete: false });
-                
+                app.applyPendingPayment();
+
                 app.updateAuthUI();
                 app.showToast(`Welcome, ${name}! Let's set up your profile.`);
                 
@@ -2960,6 +2998,268 @@ const app = {
         setTimeout(() => {
             app.updateAuthUI();
             app.renderCourses();
+        }, 500);
+    },
+
+    _activePaymentItem: null,
+    _paymentReturnView: 'landing-view',
+    _paymentReturnAppPage: 'dashboard',
+    _paymentProofFile: null,
+    _paymentProofObjectUrl: null,
+
+    openPaymentPage: (itemId) => {
+        const item = _getPaymentItem(itemId);
+        if (!item) return;
+
+        const activeView = document.querySelector('.view.active');
+        const activeAppPage = document.querySelector('.app-page.active');
+        app._paymentReturnView = activeView ? activeView.id : 'landing-view';
+        app._paymentReturnAppPage = activeAppPage ? activeAppPage.id : 'dashboard';
+
+        app._activeCourseId = itemId;
+        app._activePaymentItem = item;
+        app._activeUpiPayment = _buildUpiPayment(item);
+
+        app.renderPaymentPage(item, app._activeUpiPayment);
+        document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+        document.getElementById('payment-view').classList.add('active');
+        window.scrollTo(0, 0);
+        return app._activeUpiPayment;
+    },
+
+    openPaymentModal: (itemId) => app.openPaymentPage(itemId),
+
+    renderPaymentPage: (item, payment) => {
+        const benefits = _getPaymentBenefits(item);
+        const icon = document.getElementById('payment-plan-icon-symbol');
+        const title = document.getElementById('payment-title');
+        const subtitle = document.getElementById('payment-subtitle');
+        const amount = document.getElementById('payment-amount');
+        const duration = document.getElementById('payment-duration');
+        const level = document.getElementById('payment-level');
+        const qr = document.getElementById('payment-qr-img');
+        const upiId = document.getElementById('payment-upi-id-display');
+        const benefitsList = document.getElementById('payment-benefits-list');
+        const utr = document.getElementById('payment-utr-input');
+        const status = document.getElementById('payment-upi-launch-status');
+
+        if (icon) icon.className = `fa-solid ${item.icon || 'fa-bolt'}`;
+        if (title) title.textContent = item.title;
+        if (subtitle) subtitle.textContent = `${item.instructor || 'Dynamate'} | ${item.duration || 'Access'}`;
+        if (amount) amount.innerHTML = `&#8377;${item.price.toLocaleString('en-IN')}`;
+        if (duration) duration.textContent = item.duration || 'Lifetime';
+        if (level) level.textContent = item.level || 'Premium';
+        if (qr) qr.src = _buildQrCodeUrl(payment.uri);
+        if (upiId) upiId.textContent = UPI_CONFIG.vpa;
+        if (benefitsList) {
+            benefitsList.innerHTML = benefits
+                .map(benefit => `<li><i class="fa-solid fa-check text-primary"></i> ${benefit}</li>`)
+                .join('');
+        }
+        if (utr) utr.value = '';
+        if (status) {
+            status.textContent = '';
+            status.classList.add('hidden');
+        }
+        app.resetPaymentProof();
+    },
+
+    startUPIPayment: (itemId) => {
+        app.openPaymentPage(itemId);
+    },
+
+    handlePaymentLinkClick: (event, itemId) => {
+        event.preventDefault();
+        app.openPaymentPage(itemId);
+        return false;
+    },
+
+    closePaymentModal: () => app.exitPaymentPage(),
+
+    exitPaymentPage: () => {
+        if (app._upiFallbackTimer) window.clearTimeout(app._upiFallbackTimer);
+        app.resetPaymentProof();
+        app._activeCourseId = null;
+        app._activePaymentItem = null;
+        app._activeUpiPayment = null;
+
+        document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+        const returnView = app._paymentReturnView || 'landing-view';
+        if (returnView === 'app-view') {
+            document.getElementById('app-view').classList.add('active');
+            app.navigateAppPage(app._paymentReturnAppPage || 'dashboard');
+            return;
+        }
+        const viewEl = document.getElementById(returnView);
+        (viewEl || document.getElementById('landing-view')).classList.add('active');
+        window.scrollTo(0, 0);
+    },
+
+    copyUPIId: () => {
+        const upiIdEl = document.getElementById('payment-upi-id-display') || document.getElementById('upi-id-display');
+        const upiId = upiIdEl ? upiIdEl.textContent : UPI_CONFIG.vpa;
+        navigator.clipboard.writeText(upiId).then(() => {
+            app.showToast('UPI ID copied to clipboard!');
+        }).catch(() => {
+            app.showToast(`${UPI_CONFIG.vpa} - copy manually.`);
+        });
+    },
+
+    showUPILaunchStatus: (message) => {
+        const status = document.getElementById('payment-upi-launch-status') || document.getElementById('upi-launch-status');
+        if (!status) return;
+        status.textContent = message;
+        status.classList.remove('hidden');
+    },
+
+    resetPaymentProof: () => {
+        if (app._paymentProofObjectUrl) {
+            URL.revokeObjectURL(app._paymentProofObjectUrl);
+            app._paymentProofObjectUrl = null;
+        }
+        app._paymentProofFile = null;
+        const input = document.getElementById('payment-proof-input');
+        const title = document.getElementById('payment-proof-title');
+        const help = document.getElementById('payment-proof-help');
+        const preview = document.getElementById('payment-proof-preview');
+        const submit = document.getElementById('payment-submit-btn');
+        const box = document.getElementById('payment-proof-box');
+
+        if (input) input.value = '';
+        if (title) title.textContent = 'Add payment screenshot';
+        if (help) help.textContent = 'PNG, JPG, or WebP up to 5 MB';
+        if (preview) {
+            preview.src = '';
+            preview.classList.add('hidden');
+        }
+        if (submit) submit.disabled = true;
+        if (box) box.classList.remove('proof-ready');
+    },
+
+    handlePaymentProofUpload: (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) {
+            app.resetPaymentProof();
+            return;
+        }
+        if (!file.type.startsWith('image/')) {
+            app.showToast('Please upload a payment screenshot image.', 'danger');
+            app.resetPaymentProof();
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            app.showToast('Screenshot must be 5 MB or smaller.', 'danger');
+            app.resetPaymentProof();
+            return;
+        }
+
+        if (app._paymentProofObjectUrl) URL.revokeObjectURL(app._paymentProofObjectUrl);
+        app._paymentProofFile = file;
+        app._paymentProofObjectUrl = URL.createObjectURL(file);
+
+        const title = document.getElementById('payment-proof-title');
+        const help = document.getElementById('payment-proof-help');
+        const preview = document.getElementById('payment-proof-preview');
+        const submit = document.getElementById('payment-submit-btn');
+        const box = document.getElementById('payment-proof-box');
+
+        if (title) title.textContent = file.name;
+        if (help) help.textContent = `${_formatFileSize(file.size)} selected. Ready to submit.`;
+        if (preview) {
+            preview.src = app._paymentProofObjectUrl;
+            preview.classList.remove('hidden');
+        }
+        if (submit) submit.disabled = false;
+        if (box) box.classList.add('proof-ready');
+    },
+
+    applyPendingPayment: () => {
+        const pendingPlan = localStorage.getItem('dm_pending_pro');
+        if (!pendingPlan) return;
+
+        const user = store.getUser();
+        if (!user) return;
+
+        let proofRecord = null;
+        try {
+            proofRecord = JSON.parse(localStorage.getItem('dm_pending_payment_proof') || 'null');
+        } catch (error) {
+            proofRecord = null;
+        }
+
+        user.proStatus = 'active';
+        user.planId = pendingPlan;
+        if (proofRecord) user.lastPaymentProof = proofRecord;
+        store.setUser(user);
+        localStorage.removeItem('dm_pending_pro');
+        localStorage.removeItem('dm_pending_payment_proof');
+    },
+
+    processUPIPayment: () => {
+        const utrInput = document.getElementById('payment-utr-input');
+        const utr = utrInput ? utrInput.value.trim() : '';
+        if (!app._paymentProofFile) {
+            app.showToast('Please add the payment screenshot first.', 'danger');
+            return;
+        }
+        if (utr && utr.length < 8) {
+            app.showToast('Please enter a valid Transaction ID (UTR), or leave it empty.', 'danger');
+            return;
+        }
+        if (!app._activeCourseId) return;
+
+        const isPlan = app._activeCourseId.startsWith('plan_');
+        const proofRecord = {
+            itemId: app._activeCourseId,
+            itemTitle: app._activePaymentItem ? app._activePaymentItem.title : app._activeCourseId,
+            amount: app._activeUpiPayment ? app._activeUpiPayment.amount : null,
+            reference: app._activeUpiPayment ? app._activeUpiPayment.reference : null,
+            utr,
+            proofFileName: app._paymentProofFile.name,
+            proofFileSize: app._paymentProofFile.size,
+            submittedAt: new Date().toISOString()
+        };
+        const proofKey = store._getScopedKey(`payment_proof_${proofRecord.reference}`) || `dm_guest_payment_proof_${proofRecord.reference || Date.now()}`;
+        localStorage.setItem(proofKey, JSON.stringify(proofRecord));
+
+        if (isPlan) {
+            const user = store.getUser();
+            if (user) {
+                user.proStatus = 'active';
+                user.planId = app._activeCourseId;
+                user.lastPaymentProof = proofRecord;
+                store.setUser(user);
+                app.showToast('Payment proof submitted! Your Pro subscription is active.');
+            } else {
+                localStorage.setItem('dm_pending_pro', app._activeCourseId);
+                localStorage.setItem('dm_pending_payment_proof', JSON.stringify(proofRecord));
+                app.showToast('Payment proof submitted! Please sign up to activate your subscription.');
+                app.navigateToAuth('signup');
+                app.resetPaymentProof();
+                app._activeCourseId = null;
+                app._activePaymentItem = null;
+                app._activeUpiPayment = null;
+                return;
+            }
+        } else {
+            const courseKey = store._getScopedKey(`course_${app._activeCourseId}`);
+            if (courseKey) localStorage.setItem(courseKey, 'purchased');
+            app.showToast('Payment proof submitted! You are now enrolled.');
+        }
+
+        const returnView = app._paymentReturnView;
+        const returnPage = app._paymentReturnAppPage;
+        app.resetPaymentProof();
+        app._activeCourseId = null;
+        app._activePaymentItem = null;
+        app._activeUpiPayment = null;
+        app._paymentReturnView = returnView;
+        app._paymentReturnAppPage = returnPage;
+
+        setTimeout(() => {
+            app.updateAuthUI();
+            app.renderCourses();
+            app.exitPaymentPage();
         }, 500);
     },
 
