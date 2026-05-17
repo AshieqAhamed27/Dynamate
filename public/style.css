@@ -1792,6 +1792,12 @@ h4,
     color: var(--primary);
 }
 
+.upi-app-btn.selected {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
 .upi-app-btn i {
     font-size: 1.1rem;
 }
@@ -1984,17 +1990,6 @@ h4,
     line-height: 1.45;
     margin-bottom: 1rem;
     padding: 0.85rem;
-}
-
-.payment-link-tools {
-    display: grid;
-    gap: 0.6rem;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    margin-bottom: 1rem;
-}
-
-.payment-tool-btn {
-    width: 100%;
 }
 
 .payment-app-grid,
@@ -2410,7 +2405,6 @@ h4,
     /* Courses */
     .course-price { font-size: 1.2rem; }
 
-    .payment-link-tools { grid-template-columns: 1fr; }
 }
 
 /* --- Keep desktop sidebar hidden on mobile (app-header shows instead) --- */

@@ -433,7 +433,7 @@
                             <span>1</span>
                             <div>
                                 <h2>Pay With UPI</h2>
-                                <p class="text-muted">Mobile opens UPI apps. Laptop users can scan the QR or copy the payment link.</p>
+                                <p class="text-muted">Choose your payment app, scan the QR, and pay the exact amount to the Dynamate UPI ID.</p>
                             </div>
                         </div>
 
@@ -445,33 +445,22 @@
                         <div id="payment-device-note" class="payment-device-note" aria-live="polite"></div>
 
                         <div class="upi-app-grid payment-app-grid">
-                            <a class="upi-app-btn" data-upi-app="gpay" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'gpay')">
+                            <a class="upi-app-btn" data-upi-app="gpay" href="#payment-qr-img" onclick="return app.handlePaymentAppClick(event, 'gpay')">
                                 <i class="fa-brands fa-google-pay"></i>
                                 <span>Google Pay</span>
                             </a>
-                            <a class="upi-app-btn" data-upi-app="phonepe" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'phonepe')">
+                            <a class="upi-app-btn" data-upi-app="phonepe" href="#payment-qr-img" onclick="return app.handlePaymentAppClick(event, 'phonepe')">
                                 <i class="fa-solid fa-mobile-screen-button"></i>
                                 <span>PhonePe</span>
                             </a>
-                            <a class="upi-app-btn" data-upi-app="paytm" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'paytm')">
+                            <a class="upi-app-btn" data-upi-app="paytm" href="#payment-qr-img" onclick="return app.handlePaymentAppClick(event, 'paytm')">
                                 <i class="fa-solid fa-wallet"></i>
                                 <span>Paytm</span>
                             </a>
-                            <a class="upi-app-btn" data-upi-app="generic" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'generic')">
+                            <a class="upi-app-btn" data-upi-app="generic" href="#payment-qr-img" onclick="return app.handlePaymentAppClick(event, 'generic')">
                                 <i class="fa-solid fa-qrcode"></i>
-                                <span>Open UPI App</span>
+                                <span>Any UPI App</span>
                             </a>
-                        </div>
-
-                        <div class="payment-link-tools">
-                            <button type="button" class="upi-app-btn payment-tool-btn" onclick="app.copyUPIPaymentLink()">
-                                <i class="fa-solid fa-link"></i>
-                                <span>Copy Payment Link</span>
-                            </button>
-                            <button type="button" class="upi-app-btn payment-tool-btn" onclick="app.shareUPIPaymentLink()">
-                                <i class="fa-solid fa-share-nodes"></i>
-                                <span>Share Link</span>
-                            </button>
                         </div>
 
                         <div id="payment-upi-launch-status" class="upi-launch-status hidden"></div>

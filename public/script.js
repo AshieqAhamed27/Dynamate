@@ -1153,12 +1153,18 @@ function _getDeviceInfo() {
     };
 }
 
-function _getPaymentDeviceMessage() {
-    const device = _getDeviceInfo();
-    if (device.isMobile) {
-        return 'This device can try to open installed UPI apps directly. Keep this page open after payment and upload your screenshot.';
-    }
-    return 'On laptops and desktops, UPI apps may not open directly. Scan this QR with your phone, copy the payment link, or copy the UPI ID.';
+function _formatPaymentAmount(amount) {
+    return `Rs. ${Number(amount || 0).toLocaleString('en-IN')}`;
+}
+
+function _getPaymentDeviceMessage(payment) {
+    const amountText = payment ? _formatPaymentAmount(payment.amount) : 'the selected amount';
+    return `Choose your UPI app, scan this QR, and pay ${amountText} to ${UPI_CONFIG.vpa}.`;
+}
+
+function _getPaymentAppName(appKey = 'generic') {
+    const appInfo = UPI_APPS.find(item => item.key === appKey);
+    return appInfo ? appInfo.name : 'Any UPI app';
 }
 
 function _copyTextToClipboard(text) {
@@ -1187,16 +1193,6 @@ function _copyTextToClipboard(text) {
             reject(error);
         }
     });
-}
-
-function _openExternalPaymentLink(targetUrl) {
-    const link = document.createElement('a');
-    link.href = targetUrl;
-    link.rel = 'noopener noreferrer';
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    window.setTimeout(() => link.remove(), 100);
 }
 
 function _getUpiLaunchUrl(appKey, payment) {
@@ -2955,16 +2951,29 @@ const app = {
         });
     },
 
+    selectPaymentApp: (appKey = 'generic') => {
+        if (!app._activeUpiPayment) {
+            app.showToast('Choose an item before paying.', 'danger');
+            return false;
+        }
+
+        const appName = _getPaymentAppName(appKey);
+        const amountText = _formatPaymentAmount(app._activeUpiPayment.amount);
+        document.querySelectorAll('.payment-app-grid .upi-app-btn').forEach(btn => {
+            btn.classList.toggle('selected', btn.getAttribute('data-upi-app') === appKey);
+        });
+        app.showUPILaunchStatus(`${appName} selected. Scan the QR to pay ${amountText} to ${UPI_CONFIG.vpa}, then upload the payment screenshot.`);
+        return false;
+    },
+
     handlePaymentAppClick: (event, appKey = 'generic') => {
         event.preventDefault();
         if (!app._activeUpiPayment) {
             app.showToast('Choose an item before paying.', 'danger');
             return false;
         }
-        const appInfo = UPI_APPS.find(item => item.key === appKey);
-        const appName = appInfo ? appInfo.name : 'Any UPI app';
-        const targetUrl = _getUpiLaunchUrl(appKey, app._activeUpiPayment);
-        return app.redirectToUPI(targetUrl, appName);
+        app.selectPaymentApp(appKey);
+        return false;
     },
 
     launchUPIPayment: (appKey = 'generic') => {
@@ -2972,46 +2981,18 @@ const app = {
             app.showToast('Choose an item before paying.', 'danger');
             return;
         }
-        const appInfo = UPI_APPS.find(item => item.key === appKey);
-        const appName = appInfo ? appInfo.name : 'Any UPI app';
-        const targetUrl = _getUpiLaunchUrl(appKey, app._activeUpiPayment);
-        return app.redirectToUPI(targetUrl, appName);
+        app.selectPaymentApp(appKey);
+        return false;
     },
 
     redirectToUPI: (targetUrl, appName) => {
-        const device = _getDeviceInfo();
-        app.scheduleUPIFallback(appName);
-        try {
-            if (device.isMobile) {
-                window.location.assign(targetUrl);
-            } else {
-                _openExternalPaymentLink(targetUrl);
-            }
-        } catch (error) {
-            if (device.isMobile) {
-                window.location.href = targetUrl;
-            } else {
-                app.showUPILaunchStatus('This device could not open the UPI link. Scan the QR with your phone or copy the payment link.');
-            }
-        }
+        app.showUPILaunchStatus(`${appName || 'UPI app'} selected. Scan the QR and complete the payment.`);
         return false;
     },
 
     scheduleUPIFallback: (appName) => {
-        const device = _getDeviceInfo();
-        if (!device.isMobile) {
-            app.showUPILaunchStatus(`${appName} will open only if this laptop has a UPI app or protocol handler. If nothing opens, scan the QR with your phone or copy the payment link.`);
-            if (app._upiFallbackTimer) window.clearTimeout(app._upiFallbackTimer);
-            return;
-        }
-
-        app.showUPILaunchStatus(`Opening ${appName}. If nothing happens, try Open UPI App or copy the payment link.`);
         if (app._upiFallbackTimer) window.clearTimeout(app._upiFallbackTimer);
-        app._upiFallbackTimer = window.setTimeout(() => {
-            if (document.visibilityState === 'visible') {
-                app.showUPILaunchStatus('Payment app did not open? Try Open UPI App, use Chrome/Safari on your phone, or copy the payment link.');
-            }
-        }, 1800);
+        app.showUPILaunchStatus(`${appName || 'UPI app'} selected. Scan the QR and complete the payment.`);
     },
 
     showUPILaunchStatus: (message) => {
@@ -3085,22 +3066,10 @@ const app = {
             });
 
             const genericButton = appGrid.querySelector('[data-upi-app="generic"] span');
-            if (genericButton) genericButton.textContent = 'Open UPI App';
+            if (genericButton) genericButton.textContent = 'Any UPI App';
         }
 
-        if (appGrid && !paymentView.querySelector('.payment-link-tools')) {
-            appGrid.insertAdjacentHTML('afterend', `
-                <div class="payment-link-tools">
-                    <button type="button" class="upi-app-btn payment-tool-btn" onclick="app.copyUPIPaymentLink()">
-                        <i class="fa-solid fa-link"></i>
-                        <span>Copy Payment Link</span>
-                    </button>
-                    <button type="button" class="upi-app-btn payment-tool-btn" onclick="app.shareUPIPaymentLink()">
-                        <i class="fa-solid fa-share-nodes"></i>
-                        <span>Share Link</span>
-                    </button>
-                </div>`);
-        }
+        paymentView.querySelector('.payment-link-tools')?.remove();
     },
 
     ensurePaymentView: () => {
@@ -3154,7 +3123,7 @@ const app = {
                             <span>1</span>
                             <div>
                                 <h2>Pay With UPI</h2>
-                                <p class="text-muted">Mobile opens UPI apps. Laptop users can scan the QR or copy the payment link.</p>
+                                <p class="text-muted">Choose your payment app, scan the QR, and pay the exact amount to the Dynamate UPI ID.</p>
                             </div>
                         </div>
                         <div class="payment-qr-shell">
@@ -3163,32 +3132,22 @@ const app = {
                         </div>
                         <div id="payment-device-note" class="payment-device-note" aria-live="polite"></div>
                         <div class="upi-app-grid payment-app-grid">
-                            <a class="upi-app-btn" data-upi-app="gpay" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'gpay')">
+                            <a class="upi-app-btn" data-upi-app="gpay" href="#payment-qr-img" onclick="return app.handlePaymentAppClick(event, 'gpay')">
                                 <i class="fa-brands fa-google-pay"></i>
                                 <span>Google Pay</span>
                             </a>
-                            <a class="upi-app-btn" data-upi-app="phonepe" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'phonepe')">
+                            <a class="upi-app-btn" data-upi-app="phonepe" href="#payment-qr-img" onclick="return app.handlePaymentAppClick(event, 'phonepe')">
                                 <i class="fa-solid fa-mobile-screen-button"></i>
                                 <span>PhonePe</span>
                             </a>
-                            <a class="upi-app-btn" data-upi-app="paytm" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'paytm')">
+                            <a class="upi-app-btn" data-upi-app="paytm" href="#payment-qr-img" onclick="return app.handlePaymentAppClick(event, 'paytm')">
                                 <i class="fa-solid fa-wallet"></i>
                                 <span>Paytm</span>
                             </a>
-                            <a class="upi-app-btn" data-upi-app="generic" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'generic')">
+                            <a class="upi-app-btn" data-upi-app="generic" href="#payment-qr-img" onclick="return app.handlePaymentAppClick(event, 'generic')">
                                 <i class="fa-solid fa-qrcode"></i>
-                                <span>Open UPI App</span>
+                                <span>Any UPI App</span>
                             </a>
-                        </div>
-                        <div class="payment-link-tools">
-                            <button type="button" class="upi-app-btn payment-tool-btn" onclick="app.copyUPIPaymentLink()">
-                                <i class="fa-solid fa-link"></i>
-                                <span>Copy Payment Link</span>
-                            </button>
-                            <button type="button" class="upi-app-btn payment-tool-btn" onclick="app.shareUPIPaymentLink()">
-                                <i class="fa-solid fa-share-nodes"></i>
-                                <span>Share Link</span>
-                            </button>
                         </div>
                         <div id="payment-upi-launch-status" class="upi-launch-status hidden"></div>
                         <div class="upi-id-box payment-upi-id-box">
@@ -3284,12 +3243,13 @@ const app = {
                 .join('');
         }
         if (utr) utr.value = '';
-        if (deviceNote) deviceNote.textContent = _getPaymentDeviceMessage();
+        if (deviceNote) deviceNote.textContent = _getPaymentDeviceMessage(payment);
         document.querySelectorAll('.payment-app-grid .upi-app-btn').forEach((link, index) => {
             const fallbackKeys = ['gpay', 'phonepe', 'paytm', 'generic'];
             const appKey = link.getAttribute('data-upi-app') || fallbackKeys[index] || 'generic';
             link.setAttribute('data-upi-app', appKey);
-            link.setAttribute('href', _getUpiLaunchUrl(appKey, payment));
+            link.setAttribute('href', '#payment-qr-img');
+            link.classList.remove('selected');
         });
         if (status) {
             status.textContent = '';
@@ -3337,55 +3297,6 @@ const app = {
         }).catch(() => {
             app.showToast(`${UPI_CONFIG.vpa} - copy manually.`);
         });
-    },
-
-    copyUPIPaymentLink: (options = {}) => {
-        const payment = app._activeUpiPayment;
-        if (!payment) {
-            app.showToast('Choose a plan or course before copying the payment link.', 'danger');
-            return Promise.resolve(false);
-        }
-
-        return _copyTextToClipboard(payment.uri).then(() => {
-            const message = 'UPI payment link copied. Open it on a phone with any UPI app, or use it on this device if UPI is installed.';
-            app.showUPILaunchStatus(message);
-            if (!options.silent) app.showToast('Payment link copied.');
-            return true;
-        }).catch(() => {
-            app.showUPILaunchStatus(`Could not copy automatically. Payment link: ${payment.uri}`);
-            if (!options.silent) app.showToast('Could not copy payment link automatically.', 'danger');
-            return false;
-        });
-    },
-
-    shareUPIPaymentLink: async () => {
-        const payment = app._activeUpiPayment;
-        if (!payment) {
-            app.showToast('Choose a plan or course before sharing the payment link.', 'danger');
-            return false;
-        }
-
-        const shareText = [
-            `Dynamate payment: ${payment.title}`,
-            `Amount: Rs. ${Number(payment.amount).toLocaleString('en-IN')}`,
-            `UPI ID: ${UPI_CONFIG.vpa}`,
-            `Payment link: ${payment.uri}`
-        ].join('\n');
-
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: 'Dynamate UPI payment',
-                    text: shareText
-                });
-                app.showUPILaunchStatus('Payment link shared. Complete the UPI payment, then upload the screenshot here.');
-                return true;
-            } catch (error) {
-                if (error && error.name === 'AbortError') return false;
-            }
-        }
-
-        return app.copyUPIPaymentLink();
     },
 
     showUPILaunchStatus: (message) => {
