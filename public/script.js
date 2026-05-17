@@ -1159,12 +1159,19 @@ function _formatPaymentAmount(amount) {
 
 function _getPaymentDeviceMessage(payment) {
     const amountText = payment ? _formatPaymentAmount(payment.amount) : 'the selected amount';
+    if (!_getDeviceInfo().isMobile) {
+        return `Scan this QR with your selected UPI app to pay ${amountText} to ${UPI_CONFIG.vpa}.`;
+    }
     return `Tap a UPI app to open ${amountText} payment to ${UPI_CONFIG.vpa}, or scan this QR with your payment app.`;
 }
 
 function _getPaymentAppName(appKey = 'generic') {
     const appInfo = UPI_APPS.find(item => item.key === appKey);
     return appInfo ? appInfo.name : 'Any UPI app';
+}
+
+function _canLaunchUpiApp() {
+    return _getDeviceInfo().isMobile;
 }
 
 function _copyTextToClipboard(text) {
@@ -1212,6 +1219,11 @@ function _getUpiLaunchUrl(appKey, payment) {
     if (device.isAndroid) return _getAndroidUpiIntent(appInfo, payment.uri);
     if (device.isIOS) return _getAppSchemeUpiUri(appInfo, payment.uri);
     return payment.uri;
+}
+
+function _getPaymentAppHref(appKey, payment) {
+    if (!_canLaunchUpiApp()) return '#payment-qr-img';
+    return _getUpiLaunchUrl(appKey, payment);
 }
 
 function _getPaymentItem(itemId) {
@@ -2983,6 +2995,9 @@ const app = {
             return false;
         }
         app.selectPaymentApp(appKey);
+        if (!_canLaunchUpiApp()) {
+            return false;
+        }
         const appName = _getPaymentAppName(appKey);
         const targetUrl = _getUpiLaunchUrl(appKey, app._activeUpiPayment);
         return app.redirectToUPI(targetUrl, appName);
@@ -2994,6 +3009,9 @@ const app = {
             return;
         }
         app.selectPaymentApp(appKey);
+        if (!_canLaunchUpiApp()) {
+            return false;
+        }
         const appName = _getPaymentAppName(appKey);
         const targetUrl = _getUpiLaunchUrl(appKey, app._activeUpiPayment);
         return app.redirectToUPI(targetUrl, appName);
@@ -3017,6 +3035,10 @@ const app = {
         if (app._upiFallbackTimer) window.clearTimeout(app._upiFallbackTimer);
         const payment = app._activeUpiPayment;
         const amountText = payment ? _formatPaymentAmount(payment.amount) : 'the selected amount';
+        if (!_canLaunchUpiApp()) {
+            app.showUPILaunchStatus(`${appName || 'UPI app'} selected. Scan the QR to pay ${amountText} to ${UPI_CONFIG.vpa}, then upload the payment screenshot.`);
+            return;
+        }
         app.showUPILaunchStatus(`Opening ${appName || 'UPI app'} for ${amountText} to ${UPI_CONFIG.vpa}. After payment, return here and upload the screenshot.`);
         app._upiFallbackTimer = window.setTimeout(() => {
             if (document.visibilityState === 'visible') {
@@ -3162,19 +3184,19 @@ const app = {
                         </div>
                         <div id="payment-device-note" class="payment-device-note" aria-live="polite"></div>
                         <div class="upi-app-grid payment-app-grid">
-                            <a class="upi-app-btn" data-upi-app="gpay" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'gpay')">
+                            <a class="upi-app-btn" data-upi-app="gpay" href="#payment-qr-img" onclick="return app.handlePaymentAppClick(event, 'gpay')">
                                 <i class="fa-brands fa-google-pay"></i>
                                 <span>Google Pay</span>
                             </a>
-                            <a class="upi-app-btn" data-upi-app="phonepe" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'phonepe')">
+                            <a class="upi-app-btn" data-upi-app="phonepe" href="#payment-qr-img" onclick="return app.handlePaymentAppClick(event, 'phonepe')">
                                 <i class="fa-solid fa-mobile-screen-button"></i>
                                 <span>PhonePe</span>
                             </a>
-                            <a class="upi-app-btn" data-upi-app="paytm" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'paytm')">
+                            <a class="upi-app-btn" data-upi-app="paytm" href="#payment-qr-img" onclick="return app.handlePaymentAppClick(event, 'paytm')">
                                 <i class="fa-solid fa-wallet"></i>
                                 <span>Paytm</span>
                             </a>
-                            <a class="upi-app-btn" data-upi-app="generic" href="upi://pay" onclick="return app.handlePaymentAppClick(event, 'generic')">
+                            <a class="upi-app-btn" data-upi-app="generic" href="#payment-qr-img" onclick="return app.handlePaymentAppClick(event, 'generic')">
                                 <i class="fa-solid fa-qrcode"></i>
                                 <span>Any UPI App</span>
                             </a>
@@ -3278,7 +3300,7 @@ const app = {
             const fallbackKeys = ['gpay', 'phonepe', 'paytm', 'generic'];
             const appKey = link.getAttribute('data-upi-app') || fallbackKeys[index] || 'generic';
             link.setAttribute('data-upi-app', appKey);
-            link.setAttribute('href', _getUpiLaunchUrl(appKey, payment));
+            link.setAttribute('href', _getPaymentAppHref(appKey, payment));
             link.classList.remove('selected');
         });
         if (status) {
