@@ -18,19 +18,22 @@ const UPI_PAYMENT_APPS = [
         key: 'gpay',
         name: 'Google Pay',
         icon: 'fa-brands fa-google-pay',
-        packageName: 'com.google.android.apps.nbu.paisa.user'
+        packageName: 'com.google.android.apps.nbu.paisa.user',
+        schemePrefix: 'gpay://upi/pay?'
     },
     {
         key: 'phonepe',
         name: 'PhonePe',
         icon: 'fa-solid fa-mobile-screen-button',
-        packageName: 'com.phonepe.app'
+        packageName: 'com.phonepe.app',
+        schemePrefix: 'phonepe://pay?'
     },
     {
         key: 'paytm',
         name: 'Paytm',
         icon: 'fa-solid fa-wallet',
-        packageName: 'net.one97.paytm'
+        packageName: 'net.one97.paytm',
+        schemePrefix: 'paytmmp://pay?'
     }
 ];
 
@@ -420,9 +423,29 @@ function _buildUpiPayment(plan, existingReference = '') {
     };
 }
 
-function _getUpiIntentHref(appInfo, upiUri) {
+function _getUpiQuery(upiUri) {
+    return upiUri.replace('upi://pay?', '');
+}
+
+function _getUpiAndroidIntentHref(appInfo, upiUri) {
     const query = upiUri.replace('upi://pay?', '');
     return `intent://pay?${query}#Intent;scheme=upi;package=${appInfo.packageName};end`;
+}
+
+function _getUpiSchemeHref(appInfo, upiUri) {
+    return `${appInfo.schemePrefix}${_getUpiQuery(upiUri)}`;
+}
+
+function _getDeviceInfo() {
+    const ua = navigator.userAgent || '';
+    const isAndroid = /Android/i.test(ua);
+    const isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    return {
+        isAndroid,
+        isIOS,
+        isMobile: isAndroid || isIOS || /Mobi|Mobile/i.test(ua)
+    };
 }
 
 function _escapeHTML(value) {
@@ -436,6 +459,7 @@ function _escapeHTML(value) {
 
 const app = {
     authMode: 'signup',
+    upiFallbackTimer: null,
     init: () => {
         store.syncCurrentUserToAccount();
         app.renderPricing();
@@ -508,12 +532,12 @@ const app = {
         const isConfigured = _isUpiConfigured();
         const appButtons = isConfigured
             ? UPI_PAYMENT_APPS.map(appInfo => `
-                <a class="upi-app-button ${appInfo.key}" href="${_escapeHTML(_getUpiIntentHref(appInfo, payment.uri))}" onclick="app.recordUpiLaunch('${appInfo.name}')" aria-label="Pay with ${appInfo.name}">
+                <button type="button" class="upi-app-button ${appInfo.key}" onclick="app.launchUpiPayment('${appInfo.key}')" aria-label="Pay with ${appInfo.name}">
                     <i class="${appInfo.icon}"></i>
                     <span>${appInfo.name}</span>
-                </a>`).join('')
+                </button>`).join('')
             : UPI_PAYMENT_APPS.map(appInfo => `
-                <button class="upi-app-button ${appInfo.key}" disabled aria-label="${appInfo.name} unavailable until UPI ID is configured">
+                <button type="button" class="upi-app-button ${appInfo.key}" disabled aria-label="${appInfo.name} unavailable until UPI ID is configured">
                     <i class="${appInfo.icon}"></i>
                     <span>${appInfo.name}</span>
                 </button>`).join('');
@@ -543,11 +567,14 @@ const app = {
             ${isConfigured ? `
                 <div class="upi-app-grid">
                     ${appButtons}
-                    <a class="upi-app-button generic" href="${_escapeHTML(payment.uri)}" onclick="app.recordUpiLaunch('Any UPI app')" aria-label="Pay with any UPI app">
+                    <button type="button" class="upi-app-button generic" onclick="app.launchUpiPayment('generic')" aria-label="Pay with any UPI app">
                         <i class="fa-solid fa-qrcode"></i>
                         <span>Any UPI App</span>
-                    </a>
+                    </button>
                 </div>
+
+                <div id="upi-launch-status" class="upi-launch-status hidden"></div>
+                <p class="form-hint">Open this on your phone. UPI apps cannot launch from most desktop browsers.</p>
 
                 <div class="upi-copy-row">
                     <div>
@@ -581,6 +608,46 @@ const app = {
         const modal = document.getElementById('upi-modal');
         if (modal) modal.classList.add('hidden');
         document.body.classList.remove('modal-open');
+    },
+    launchUpiPayment: (appKey = 'generic') => {
+        const payment = JSON.parse(localStorage.getItem('dm_pending_payment')) || {};
+        if (!payment.uri) {
+            app.showToast('Choose a Premium plan first.', 'warning');
+            return;
+        }
+
+        const appInfo = UPI_PAYMENT_APPS.find(item => item.key === appKey);
+        const device = _getDeviceInfo();
+        const appName = appInfo ? appInfo.name : 'Any UPI app';
+        let targetUrl = payment.uri;
+
+        if (!device.isMobile) {
+            app.showUpiLaunchStatus('Open this checkout on your phone to launch a UPI app. Desktop browsers usually block UPI redirects.');
+            app.showToast('Open this page on your phone to pay with UPI.', 'warning');
+            return;
+        }
+
+        if (appInfo && device.isAndroid) {
+            targetUrl = _getUpiAndroidIntentHref(appInfo, payment.uri);
+        } else if (appInfo && device.isIOS) {
+            targetUrl = _getUpiSchemeHref(appInfo, payment.uri);
+        }
+
+        app.recordUpiLaunch(appName);
+        app.showUpiLaunchStatus(`Opening ${appName}. If nothing happens, try Any UPI App or copy the UPI ID.`);
+        if (app.upiFallbackTimer) window.clearTimeout(app.upiFallbackTimer);
+        app.upiFallbackTimer = window.setTimeout(() => {
+            if (document.visibilityState === 'visible') {
+                app.showUpiLaunchStatus('Payment app did not open? Try Any UPI App, use Chrome/Safari on your phone, or copy the UPI ID.');
+            }
+        }, 1800);
+        window.location.href = targetUrl;
+    },
+    showUpiLaunchStatus: (message) => {
+        const status = document.getElementById('upi-launch-status');
+        if (!status) return;
+        status.textContent = message;
+        status.classList.remove('hidden');
     },
     recordUpiLaunch: (appName) => {
         const payment = JSON.parse(localStorage.getItem('dm_pending_payment')) || {};
