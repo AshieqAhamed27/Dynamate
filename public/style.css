@@ -1775,6 +1775,7 @@ h4,
     justify-content: center;
     min-height: 48px;
     padding: 0.65rem 0.75rem;
+    text-decoration: none;
     transition: var(--transition);
 }
 
