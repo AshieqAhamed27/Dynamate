@@ -2792,7 +2792,7 @@ const app = {
                             </div>
                             ${isPurchased
                                 ? `<button class="btn btn-block course-enrolled-btn" disabled><i class="fa-solid fa-check-circle"></i> Enrolled</button>`
-                                : `<button class="btn btn-primary btn-block course-buy-btn" onclick="app.openPaymentModal('${course.id}')"><i class="fa-solid fa-bolt"></i> Enroll Now</button>`
+                                : `<button class="btn btn-primary btn-block course-buy-btn" onclick="app.startUPIPayment('${course.id}')"><i class="fa-solid fa-bolt"></i> Enroll Now</button>`
                             }
                         </div>
                     </div>
@@ -2828,6 +2828,11 @@ const app = {
         const modal = document.getElementById('payment-modal');
         modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
+    },
+
+    startUPIPayment: (itemId) => {
+        app.openPaymentModal(itemId);
+        app.launchUPIPayment('generic');
     },
 
     closePaymentModal: (event) => {
