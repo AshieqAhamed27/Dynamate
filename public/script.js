@@ -1044,13 +1044,98 @@ const PLANS = [
         instructor: 'Dynamate Premium',
         duration: '1 Year',
         modules: 'All Features',
-        price: 999,
+        price: 899,
         originalPrice: 1200,
         level: 'Pro',
         icon: 'fa-calendar-check',
         color: '#ef4444'
     }
 ];
+
+const UPI_CONFIG = {
+    vpa: 'ar0694066-1@okicici',
+    name: 'Dynamate',
+    currency: 'INR',
+    notePrefix: 'Dynamate Payment'
+};
+
+const UPI_APPS = [
+    {
+        key: 'gpay',
+        name: 'Google Pay',
+        packageName: 'com.google.android.apps.nbu.paisa.user',
+        schemePrefix: 'gpay://upi/pay?'
+    },
+    {
+        key: 'phonepe',
+        name: 'PhonePe',
+        packageName: 'com.phonepe.app',
+        schemePrefix: 'phonepe://pay?'
+    },
+    {
+        key: 'paytm',
+        name: 'Paytm',
+        packageName: 'net.one97.paytm',
+        schemePrefix: 'paytmmp://pay?'
+    }
+];
+
+function _encodeUpiQuery(fields) {
+    return Object.entries(fields)
+        .filter(([, value]) => value !== undefined && value !== null && value !== '')
+        .map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`)
+        .join('&');
+}
+
+function _makeUpiReference(itemId) {
+    const suffix = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`.toUpperCase();
+    return `DM-${itemId.replace(/[^a-z0-9]/gi, '').slice(0, 8).toUpperCase()}-${suffix}`;
+}
+
+function _buildUpiPayment(item) {
+    const reference = _makeUpiReference(item.id);
+    const query = _encodeUpiQuery({
+        pa: UPI_CONFIG.vpa,
+        pn: UPI_CONFIG.name,
+        tr: reference,
+        tn: `${UPI_CONFIG.notePrefix} - ${item.title} - ${reference}`,
+        am: Number(item.price).toFixed(2),
+        cu: UPI_CONFIG.currency
+    });
+
+    return {
+        itemId: item.id,
+        title: item.title,
+        amount: item.price,
+        reference,
+        uri: `upi://pay?${query}`
+    };
+}
+
+function _getUpiQuery(upiUri) {
+    return upiUri.replace('upi://pay?', '');
+}
+
+function _getAndroidUpiIntent(appInfo, upiUri) {
+    const query = _getUpiQuery(upiUri);
+    return `intent://pay?${query}#Intent;scheme=upi;package=${appInfo.packageName};end`;
+}
+
+function _getAppSchemeUpiUri(appInfo, upiUri) {
+    return `${appInfo.schemePrefix}${_getUpiQuery(upiUri)}`;
+}
+
+function _getDeviceInfo() {
+    const ua = navigator.userAgent || '';
+    const isAndroid = /Android/i.test(ua);
+    const isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    return {
+        isAndroid,
+        isIOS,
+        isMobile: isAndroid || isIOS || /Mobi|Mobile/i.test(ua)
+    };
+}
 
 // ==========================================
 // STORE (Local Storage Wrapper)
@@ -1545,6 +1630,16 @@ const app = {
                     body: JSON.stringify({ email, password })
                 });
                 const data = await res.json();
+                if (data.needsSignup) {
+                    app.authMode = 'signup';
+                    app.toggleAuthMode(true);
+                    const msgEl = document.getElementById('auth-redirect-message');
+                    if (msgEl) {
+                        msgEl.textContent = data.message || 'No account found. Create your athlete profile to continue.';
+                        msgEl.classList.remove('hidden');
+                    }
+                    return;
+                }
                 if (!res.ok) {
                     // Auto-redirect to signup if user not found
                     if (data.error && data.error.toLowerCase().includes('not found')) {
@@ -2697,7 +2792,7 @@ const app = {
                             </div>
                             ${isPurchased
                                 ? `<button class="btn btn-block course-enrolled-btn" disabled><i class="fa-solid fa-check-circle"></i> Enrolled</button>`
-                                : `<button class="btn btn-primary btn-block course-buy-btn" onclick="app.openPaymentModal('${course.id}')"><i class="fa-solid fa-bolt"></i> Enroll Now</button>`
+                                : `<button class="btn btn-primary btn-block course-buy-btn" onclick="app.startUPIPayment('${course.id}')"><i class="fa-solid fa-bolt"></i> Enroll Now</button>`
                             }
                         </div>
                     </div>
@@ -2710,20 +2805,34 @@ const app = {
 
     // Current course being purchased
     _activeCourseId: null,
+    _activeUpiPayment: null,
+    _upiFallbackTimer: null,
 
     openPaymentModal: (itemId) => {
         const item = COURSES.find(c => c.id === itemId) || PLANS.find(p => p.id === itemId);
         if (!item) return;
         app._activeCourseId = itemId;
+        app._activeUpiPayment = _buildUpiPayment(item);
 
         document.getElementById('modal-course-title').textContent = item.title;
         document.getElementById('modal-course-sub').textContent = `${item.instructor} · ${item.duration} · ${item.modules} Modules`;
         document.getElementById('modal-course-price').innerHTML = `&#8377;${item.price.toLocaleString('en-IN')}`;
+        document.getElementById('upi-id-display').textContent = UPI_CONFIG.vpa;
         document.getElementById('utr-input').value = '';
+        const status = document.getElementById('upi-launch-status');
+        if (status) {
+            status.textContent = '';
+            status.classList.add('hidden');
+        }
 
         const modal = document.getElementById('payment-modal');
         modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
+    },
+
+    startUPIPayment: (itemId) => {
+        app.openPaymentModal(itemId);
+        app.launchUPIPayment('generic');
     },
 
     closePaymentModal: (event) => {
@@ -2731,6 +2840,7 @@ const app = {
         document.getElementById('payment-modal').classList.add('hidden');
         document.body.style.overflow = '';
         app._activeCourseId = null;
+        app._activeUpiPayment = null;
     },
 
     copyUPIId: () => {
@@ -2738,8 +2848,48 @@ const app = {
         navigator.clipboard.writeText(upiId).then(() => {
             app.showToast('UPI ID copied to clipboard!');
         }).catch(() => {
-            app.showToast('dynamate@upi — copy manually.');
+            app.showToast(`${UPI_CONFIG.vpa} - copy manually.`);
         });
+    },
+
+    launchUPIPayment: (appKey = 'generic') => {
+        if (!app._activeUpiPayment) {
+            app.showToast('Choose an item before paying.', 'danger');
+            return;
+        }
+
+        const appInfo = UPI_APPS.find(item => item.key === appKey);
+        const device = _getDeviceInfo();
+        const appName = appInfo ? appInfo.name : 'Any UPI app';
+        let targetUrl = app._activeUpiPayment.uri;
+
+        if (!device.isMobile) {
+            app.showUPILaunchStatus('Open this checkout on your phone. Desktop browsers usually block UPI app redirects.');
+            app.showToast('Open this page on your phone to pay with UPI.', 'warning');
+            return;
+        }
+
+        if (appInfo && device.isAndroid) {
+            targetUrl = _getAndroidUpiIntent(appInfo, app._activeUpiPayment.uri);
+        } else if (appInfo && device.isIOS) {
+            targetUrl = _getAppSchemeUpiUri(appInfo, app._activeUpiPayment.uri);
+        }
+
+        app.showUPILaunchStatus(`Opening ${appName}. If nothing happens, try Any UPI App or copy the UPI ID.`);
+        if (app._upiFallbackTimer) window.clearTimeout(app._upiFallbackTimer);
+        app._upiFallbackTimer = window.setTimeout(() => {
+            if (document.visibilityState === 'visible') {
+                app.showUPILaunchStatus('Payment app did not open? Try Any UPI App, use Chrome/Safari on your phone, or copy the UPI ID.');
+            }
+        }, 1800);
+        window.location.href = targetUrl;
+    },
+
+    showUPILaunchStatus: (message) => {
+        const status = document.getElementById('upi-launch-status');
+        if (!status) return;
+        status.textContent = message;
+        status.classList.remove('hidden');
     },
 
     processUPIPayment: () => {
@@ -2775,6 +2925,7 @@ const app = {
         document.getElementById('payment-modal').classList.add('hidden');
         document.body.style.overflow = '';
         app._activeCourseId = null;
+        app._activeUpiPayment = null;
 
         // Re-render UI
         setTimeout(() => {

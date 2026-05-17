@@ -1756,6 +1756,47 @@ h4,
     background: var(--border);
 }
 
+.upi-app-grid {
+    display: grid;
+    gap: 0.6rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.upi-app-btn {
+    align-items: center;
+    background: var(--bg-card-hover);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    gap: 0.5rem;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0.65rem 0.75rem;
+    transition: var(--transition);
+}
+
+.upi-app-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.upi-app-btn i {
+    font-size: 1.1rem;
+}
+
+.upi-launch-status {
+    background: var(--bg-card-hover);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--warning);
+    border-radius: var(--radius-sm);
+    color: var(--text-main);
+    font-size: 0.85rem;
+    padding: 0.85rem;
+}
+
 .upi-id-box {
     display: flex;
     align-items: center;

@@ -56,7 +56,12 @@ app.post('/api/auth/login', (req, res) => {
 
     db.get(`SELECT * FROM users WHERE email = ?`, [email], async (err, user) => {
         if (err) return res.status(500).json({ error: err.message });
-        if (!user) return res.status(400).json({ error: 'User not found' });
+        if (!user) {
+            return res.json({
+                needsSignup: true,
+                message: 'No account found. Create your athlete profile to continue.'
+            });
+        }
 
         const validPassword = await bcrypt.compare(password, user.password_hash);
         if (!validPassword) return res.status(400).json({ error: 'Invalid password' });

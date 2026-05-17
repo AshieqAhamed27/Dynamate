@@ -176,7 +176,7 @@
                             <li><i class="fa-solid fa-check text-primary"></i> Premium Courses Access</li>
                             <li><i class="fa-solid fa-check text-primary"></i> Priority Support</li>
                         </ul>
-                        <button class="btn btn-primary btn-block" onclick="app.openPaymentModal('plan_monthly')">Go Premium</button>
+                        <button class="btn btn-primary btn-block" onclick="app.startUPIPayment('plan_monthly')">Pay Monthly</button>
                     </div>
 
                     <!-- Premium Yearly -->
@@ -184,8 +184,8 @@
                         <div class="pricing-header">
                             <div class="plan-icon"><i class="fa-solid fa-trophy"></i></div>
                             <h3>Premium Yearly</h3>
-                            <div class="price"><span class="currency">&#8377;</span>999<span class="period">/yr</span></div>
-                            <p class="text-primary" style="font-weight:600;">Save ₹201 vs monthly — 17% off</p>
+                            <div class="price"><span class="currency">&#8377;</span>899<span class="period">/yr</span></div>
+                            <p class="text-primary" style="font-weight:600;">Save ₹301 vs monthly — 25% off</p>
                         </div>
                         <ul class="pricing-features">
                             <li><i class="fa-solid fa-check text-primary"></i> Everything in Premium</li>
@@ -193,7 +193,7 @@
                             <li><i class="fa-solid fa-check text-primary"></i> Early Feature Access</li>
                             <li><i class="fa-solid fa-check text-primary"></i> Competition Season Planning</li>
                         </ul>
-                        <button class="btn btn-block" onclick="app.openPaymentModal('plan_yearly')" style="border: 1px solid var(--primary); color: var(--primary);">Get Yearly</button>
+                        <button class="btn btn-block" onclick="app.startUPIPayment('plan_yearly')" style="border: 1px solid var(--primary); color: var(--primary);">Pay Yearly</button>
                     </div>
                 </div>
             </section>
@@ -832,17 +832,36 @@
                     <div class="modal-body">
                         <div class="upi-price-tag">
                             <span class="text-muted" style="font-size:0.85rem;">Total Amount</span>
-                            <div class="upi-amount" id="modal-course-price">&#8377;999</div>
+                            <div class="upi-amount" id="modal-course-price">&#8377;899</div>
                         </div>
                         <div class="upi-section">
                             <div class="upi-qr-box">
                                 <div class="upi-qr-icon"><i class="fa-solid fa-qrcode"></i></div>
-                                <p style="font-size:0.78rem; color:var(--text-muted); margin-top:8px;">Scan to pay via any UPI app</p>
+                                <p style="font-size:0.78rem; color:var(--text-muted); margin-top:8px;">Pay from your phone using a UPI app</p>
                             </div>
+                            <div class="upi-app-grid">
+                                <button type="button" class="upi-app-btn" onclick="app.launchUPIPayment('gpay')">
+                                    <i class="fa-brands fa-google-pay"></i>
+                                    <span>Google Pay</span>
+                                </button>
+                                <button type="button" class="upi-app-btn" onclick="app.launchUPIPayment('phonepe')">
+                                    <i class="fa-solid fa-mobile-screen-button"></i>
+                                    <span>PhonePe</span>
+                                </button>
+                                <button type="button" class="upi-app-btn" onclick="app.launchUPIPayment('paytm')">
+                                    <i class="fa-solid fa-wallet"></i>
+                                    <span>Paytm</span>
+                                </button>
+                                <button type="button" class="upi-app-btn" onclick="app.launchUPIPayment('generic')">
+                                    <i class="fa-solid fa-qrcode"></i>
+                                    <span>Any UPI App</span>
+                                </button>
+                            </div>
+                            <div id="upi-launch-status" class="upi-launch-status hidden"></div>
                             <div class="upi-divider"><span>or pay using UPI ID</span></div>
                             <div class="upi-id-box">
                                 <i class="fa-brands fa-google-pay" style="font-size:1.3rem; color:var(--primary);"></i>
-                                <span class="upi-id-text" id="upi-id-display">dynamate@upi</span>
+                                <span class="upi-id-text" id="upi-id-display">ar0694066-1@okicici</span>
                                 <button class="btn-copy" onclick="app.copyUPIId()" title="Copy UPI ID"><i class="fa-solid fa-copy"></i></button>
                             </div>
                             <p class="text-muted text-center" style="font-size:0.78rem; margin-top:0.75rem;">After payment, enter your UTR / Transaction ID below to confirm</p>
