@@ -1,0 +1,10 @@
+node_modules/
+dynamate.db
+*.db
+.env
+.env.local
+invoice.pdf
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
