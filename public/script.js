@@ -1246,6 +1246,78 @@ function _formatFileSize(bytes) {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function _normalizeEmail(email) {
+    return String(email || '').trim().toLowerCase();
+}
+
+function _makeLocalUserId(email) {
+    const safeEmail = _normalizeEmail(email).replace(/[^a-z0-9]/g, '_');
+    return `local_${safeEmail || Date.now()}`;
+}
+
+function _makeLocalAuthToken(email) {
+    const random = Math.random().toString(36).slice(2, 10);
+    return `local_${Date.now().toString(36)}_${random}_${_normalizeEmail(email).replace(/[^a-z0-9]/g, '')}`;
+}
+
+async function _hashLocalPassword(email, password) {
+    const input = `dynamate:v1:${_normalizeEmail(email)}:${password}`;
+    if (typeof crypto !== 'undefined' && crypto.subtle && typeof TextEncoder !== 'undefined') {
+        const data = new TextEncoder().encode(input);
+        const hash = await crypto.subtle.digest('SHA-256', data);
+        return Array.from(new Uint8Array(hash))
+            .map(byte => byte.toString(16).padStart(2, '0'))
+            .join('');
+    }
+
+    let hash = 0;
+    for (let i = 0; i < input.length; i++) {
+        hash = ((hash << 5) - hash) + input.charCodeAt(i);
+        hash |= 0;
+    }
+    return `fallback:${Math.abs(hash).toString(16)}`;
+}
+
+async function _saveLocalCredentials(user, password) {
+    const email = _normalizeEmail(user.email);
+    const existing = store.getUserByEmail(email) || {};
+    const merged = {
+        ...existing,
+        ...user,
+        id: user.id || existing.id || _makeLocalUserId(email),
+        email,
+        name: user.name || existing.name || email.split('@')[0],
+        localAuth: {
+            passwordHash: await _hashLocalPassword(email, password),
+            updatedAt: new Date().toISOString()
+        }
+    };
+    delete merged.password;
+    store.setUser(merged);
+    return merged;
+}
+
+async function _getLocalCredentialUser(email, password, options = {}) {
+    const user = store.getUserByEmail(email);
+    if (!user) return null;
+
+    const passwordHash = await _hashLocalPassword(email, password);
+    if (user.localAuth && user.localAuth.passwordHash) {
+        return user.localAuth.passwordHash === passwordHash ? user : null;
+    }
+
+    if (user.password) {
+        if (user.password !== password) return null;
+        return _saveLocalCredentials(user, password);
+    }
+
+    if (options.allowPasswordSetup) {
+        return _saveLocalCredentials(user, password);
+    }
+
+    return null;
+}
+
 // ==========================================
 // STORE (Local Storage Wrapper)
 // ==========================================
@@ -1703,6 +1775,34 @@ const app = {
         }
     },
 
+    completeAuthSession: (user, token, message) => {
+        const normalizedEmail = _normalizeEmail(user.email);
+        const existing = store.getUserByEmail(normalizedEmail) || {};
+        const mergedUser = {
+            ...existing,
+            ...user,
+            email: normalizedEmail,
+            onboardingComplete: !!(user.onboardingComplete || existing.onboardingComplete || user.goal || (user.profile && Object.keys(user.profile).length))
+        };
+
+        localStorage.setItem('dm_token', token || _makeLocalAuthToken(normalizedEmail));
+        localStorage.setItem('dm_current_session', normalizedEmail);
+        store.setUser(mergedUser);
+        app.applyPendingPayment();
+        app.updateAuthUI();
+        app.showToast(message);
+
+        if (!mergedUser.onboardingComplete) {
+            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+            document.getElementById('onboarding-view').classList.add('active');
+            return;
+        }
+
+        document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+        document.getElementById('app-view').classList.add('active');
+        app.navigateAppPage('dashboard');
+    },
+
     handleAuth: async () => {
         const emailInput = document.getElementById('auth-email');
         const passwordInput = document.getElementById('auth-password');
@@ -1740,6 +1840,22 @@ const app = {
                 });
                 const data = await res.json();
                 if (data.needsSignup) {
+                    const localUser = await _getLocalCredentialUser(email, password, { allowPasswordSetup: true });
+                    if (localUser) {
+                        app.completeAuthSession(
+                            localUser,
+                            _makeLocalAuthToken(email),
+                            `Welcome back, ${localUser.name || email.split('@')[0]}!`
+                        );
+                        return;
+                    }
+
+                    const savedUser = store.getUserByEmail(email);
+                    if (savedUser && savedUser.localAuth) {
+                        showError('Incorrect password for this saved athlete profile.');
+                        return;
+                    }
+
                     app.authMode = 'signup';
                     app.toggleAuthMode(true);
                     const msgEl = document.getElementById('auth-redirect-message');
@@ -1752,6 +1868,16 @@ const app = {
                 if (!res.ok) {
                     // Auto-redirect to signup if user not found
                     if (data.error && data.error.toLowerCase().includes('not found')) {
+                        const localUser = await _getLocalCredentialUser(email, password, { allowPasswordSetup: true });
+                        if (localUser) {
+                            app.completeAuthSession(
+                                localUser,
+                                _makeLocalAuthToken(email),
+                                `Welcome back, ${localUser.name || email.split('@')[0]}!`
+                            );
+                            return;
+                        }
+
                         app.authMode = 'signup';
                         app.toggleAuthMode(true);
                         const msgEl = document.getElementById('auth-redirect-message');
@@ -1765,22 +1891,17 @@ const app = {
                 }
 
                 // Success Login
-                localStorage.setItem('dm_token', data.token);
-                localStorage.setItem('dm_current_session', email);
-                store.setUser({ ...data.user, onboardingComplete: !!data.user.goal });
-                app.applyPendingPayment();
-                
-                app.updateAuthUI();
-                app.showToast(`Welcome back, ${data.user.name || email.split('@')[0]}!`);
-
-                if (!data.user.goal) {
-                    document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-                    document.getElementById('onboarding-view').classList.add('active');
-                } else {
-                    document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-                    document.getElementById('app-view').classList.add('active');
-                    app.navigateAppPage('dashboard');
-                }
+                const existingUser = store.getUserByEmail(email) || {};
+                const authedUser = await _saveLocalCredentials({
+                    ...existingUser,
+                    ...data.user,
+                    onboardingComplete: !!(data.user.goal || existingUser.onboardingComplete)
+                }, password);
+                app.completeAuthSession(
+                    authedUser,
+                    data.token,
+                    `Welcome back, ${authedUser.name || email.split('@')[0]}!`
+                );
             } else {
                 const name = nameInput ? nameInput.value.trim() : '';
                 if (!name) { showError('Please enter your full name.'); return; }
@@ -1795,18 +1916,48 @@ const app = {
                 if (!res.ok) throw new Error(data.error || 'Signup failed');
 
                 // Success Signup
-                localStorage.setItem('dm_token', data.token);
-                localStorage.setItem('dm_current_session', email);
-                store.setUser({ ...data.user, onboardingComplete: false });
-                app.applyPendingPayment();
-
-                app.updateAuthUI();
-                app.showToast(`Welcome, ${name}! Let's set up your profile.`);
-                
-                document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-                document.getElementById('onboarding-view').classList.add('active');
+                const authedUser = await _saveLocalCredentials({ ...data.user, name, email, onboardingComplete: false }, password);
+                app.completeAuthSession(
+                    authedUser,
+                    data.token,
+                    `Welcome, ${name}! Let's set up your profile.`
+                );
             }
         } catch (err) {
+            if (app.authMode === 'login') {
+                const localUser = await _getLocalCredentialUser(email, password, { allowPasswordSetup: true });
+                if (localUser) {
+                    app.completeAuthSession(
+                        localUser,
+                        _makeLocalAuthToken(email),
+                        `Welcome back, ${localUser.name || email.split('@')[0]}!`
+                    );
+                    return;
+                }
+
+                const savedUser = store.getUserByEmail(email);
+                if (savedUser && savedUser.localAuth) {
+                    showError('Incorrect password for this saved athlete profile.');
+                    return;
+                }
+            }
+
+            if (app.authMode === 'signup' && !/email already exists/i.test(err.message || '')) {
+                const name = nameInput ? nameInput.value.trim() : email.split('@')[0];
+                const localUser = await _saveLocalCredentials({
+                    id: _makeLocalUserId(email),
+                    name,
+                    email,
+                    onboardingComplete: false
+                }, password);
+                app.completeAuthSession(
+                    localUser,
+                    _makeLocalAuthToken(email),
+                    `Welcome, ${name}! Let's set up your profile.`
+                );
+                return;
+            }
+
             showError(err.message);
         }
         
@@ -2835,7 +2986,7 @@ const app = {
         document.getElementById('forgot-step2').classList.remove('hidden');
     },
 
-    resetPassword: () => {
+    resetPassword: async () => {
         const newPass = document.getElementById('forgot-new-password').value;
         const confirmPass = document.getElementById('forgot-confirm-password').value;
         const errorEl = document.getElementById('forgot-error');
@@ -2855,8 +3006,7 @@ const app = {
         // Update user password in store
         const user = store.getUserByEmail(app._forgotEmail);
         if (user) {
-            user.password = newPass;
-            store.setUser(user);
+            await _saveLocalCredentials(user, newPass);
         }
 
         document.getElementById('forgot-modal').classList.add('hidden');

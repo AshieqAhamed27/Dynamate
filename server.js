@@ -55,10 +55,11 @@ const authenticateToken = (req, res, next) => {
 app.post('/api/auth/signup', async (req, res) => {
     const { name, email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+    const normalizedEmail = String(email).trim().toLowerCase();
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        db.run(`INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)`, [name, email, hashedPassword], function(err) {
+        db.run(`INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)`, [name, normalizedEmail, hashedPassword], function(err) {
             if (err) {
                 if (err.message.includes('UNIQUE constraint failed')) {
                     return res.status(400).json({ error: 'Email already exists' });
@@ -66,8 +67,8 @@ app.post('/api/auth/signup', async (req, res) => {
                 return res.status(500).json({ error: err.message });
             }
             
-            const token = jwt.sign({ id: this.lastID, email }, JWT_SECRET, { expiresIn: '7d' });
-            res.json({ token, user: { id: this.lastID, name, email } });
+            const token = jwt.sign({ id: this.lastID, email: normalizedEmail }, JWT_SECRET, { expiresIn: '7d' });
+            res.json({ token, user: { id: this.lastID, name, email: normalizedEmail } });
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -77,8 +78,9 @@ app.post('/api/auth/signup', async (req, res) => {
 app.post('/api/auth/login', (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+    const normalizedEmail = String(email).trim().toLowerCase();
 
-    db.get(`SELECT * FROM users WHERE email = ?`, [email], async (err, user) => {
+    db.get(`SELECT * FROM users WHERE email = ?`, [normalizedEmail], async (err, user) => {
         if (err) return res.status(500).json({ error: err.message });
         if (!user) {
             return res.json({
