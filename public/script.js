@@ -2989,18 +2989,19 @@ const app = {
     },
 
     handlePaymentAppClick: (event, appKey = 'generic') => {
-        event.preventDefault();
         if (!app._activeUpiPayment) {
+            if (event) event.preventDefault();
             app.showToast('Choose an item before paying.', 'danger');
             return false;
         }
         app.selectPaymentApp(appKey);
         if (!_canLaunchUpiApp()) {
+            if (event) event.preventDefault();
             return false;
         }
         const appName = _getPaymentAppName(appKey);
-        const targetUrl = _getUpiLaunchUrl(appKey, app._activeUpiPayment);
-        return app.redirectToUPI(targetUrl, appName);
+        app.scheduleUPIFallback(appName);
+        return true;
     },
 
     launchUPIPayment: (appKey = 'generic') => {
@@ -3020,10 +3021,10 @@ const app = {
     redirectToUPI: (targetUrl, appName) => {
         app.scheduleUPIFallback(appName);
         try {
-            _openPaymentAppUrl(targetUrl);
+            window.location.assign(targetUrl);
         } catch (error) {
             try {
-                window.location.assign(targetUrl);
+                _openPaymentAppUrl(targetUrl);
             } catch (assignError) {
                 window.location.href = targetUrl;
             }
